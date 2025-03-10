@@ -2,30 +2,64 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab = 0
+    @State private var scrollOffset: CGFloat = 0
     private let tabItems = ["Activity", "Recovery", "Sleep", "Metrics"]
     private let tabIcons = ["figure.run", "heart.fill", "moon.fill", "chart.bar.fill"]
+    
+    // Animation states
+    @State private var isCardPressed = false
     
     var body: some View {
         ZStack {
             // Background with vibrant mint/teal gradient
             backgroundLayers
             
-            VStack {
+            VStack(spacing: 0) {
                 // Content
                 ScrollView {
+                    GeometryReader { geometry in
+                        Color.clear.preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scrollView")).minY)
+                    }
+                    .frame(height: 0)
+                    
                     VStack(spacing: 24) {
-                        // Header with user info
-                        headerView
-                            .padding(.horizontal, 24)
-                            .padding(.top, 16)
+                        // Spacer for header
+                        Spacer()
+                            .frame(height: headerHeight)
                         
-                        // Main card - WorkoutProgressCard
+                        // Main card - WorkoutProgressCard with subtle hover animation
                         WorkoutProgressCard()
                             .padding(.horizontal, 24)
+                            .scaleEffect(isCardPressed ? 0.98 : 1.0)
+                            .shadow(color: Color.black.opacity(isCardPressed ? 0.2 : 0.3), 
+                                   radius: isCardPressed ? 10 : 15, 
+                                   x: 0, 
+                                   y: isCardPressed ? 5 : 8)
+                            .onTapGesture {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                    isCardPressed = true
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                                        isCardPressed = false
+                                    }
+                                }
+                            }
                         
-                        // Quick stats cards
-                        quickStatsView
+                        // Workout Intensity Graph - NEW SECTION
+                        WorkoutIntensityGraph()
                             .padding(.horizontal, 24)
+                            .transition(.opacity.combined(with: .move(edge: .bottom)))
+                        
+                        // Quick insights section with subtle fade-in animation
+                        QuickInsightsView()
+                            .padding(.horizontal, 24)
+                            .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                        
+                        // Graph metrics section
+                        GraphMetricsView()
+                            .padding(.horizontal, 24)
+                            .padding(.top, 8)
                         
                         // Bottom spacing
                         Spacer()
@@ -34,12 +68,51 @@ struct ContentView: View {
                     .padding(.vertical, 8)
                 }
                 .scrollIndicators(.hidden)
+                .coordinateSpace(name: "scrollView")
+                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                    scrollOffset = value
+                }
                 
                 // Custom tab bar
                 customTabBar
             }
+            
+            // Animated sticky header
+            VStack {
+                headerView
+                    .padding(.horizontal, 24)
+                    .padding(.top, 16)
+                    .padding(.bottom, 8)
+                    .background(
+                        Rectangle()
+                            .fill(.ultraThinMaterial)
+                            .opacity(headerOpacity)
+                            .blur(radius: 0.5)
+                            .shadow(color: Color.black.opacity(headerOpacity * 0.2), radius: 10, x: 0, y: 5)
+                            .ignoresSafeArea()
+                    )
+                
+                Spacer()
+            }
         }
         .preferredColorScheme(.dark)
+    }
+    
+    // Header height changes based on scroll position for shrinking effect
+    private var headerHeight: CGFloat {
+        let defaultHeight: CGFloat = 90
+        let minHeight: CGFloat = 70
+        let scrollThreshold: CGFloat = -100
+        
+        // Calculate shrink factor based on scroll
+        let shrinkFactor = min(1.0, max(0, abs(min(0, scrollOffset)) / abs(scrollThreshold)))
+        return defaultHeight - (defaultHeight - minHeight) * shrinkFactor
+    }
+    
+    // Computed property for header opacity based on scroll position
+    private var headerOpacity: Double {
+        let threshold: CGFloat = -50
+        return Double(min(1.0, max(0, abs(min(0, scrollOffset)) / abs(threshold))))
     }
     
     // Updated background with vibrant mint/teal radial gradient
@@ -86,7 +159,7 @@ struct ContentView: View {
         }
     }
     
-    // Header with user info and profile button
+    // Header with user info and profile button - now with shrinking animation
     private var headerView: some View {
         HStack(alignment: .center, spacing: 16) {
             // User info
@@ -94,21 +167,25 @@ struct ContentView: View {
                 Text("Welcome back")
                     .font(.headline)
                     .foregroundColor(.textSecondary)
+                    .opacity(1 - headerOpacity * 0.7) // Fade out when scrolling
+                
                 Text("Nikhil Sharma")
-                    .font(.title)
+                    .font(.system(size: headerOpacity > 0.8 ? 22 : 28, weight: .bold)) // Shrink text size when scrolling
                     .fontWeight(.bold)
                     .foregroundColor(.textPrimary)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: headerOpacity)
             }
+            .scaleEffect(x: 1.0, y: headerOpacity > 0.8 ? 0.9 : 1.0, anchor: .leading) // Shrink vertically
             
             Spacer()
             
-            // Profile button with glass effect
+            // Profile button with glass effect and dynamic sizing
             Button(action: {}) {
                 ZStack {
                     Circle()
                         .fill(.ultraThinMaterial)
                         .opacity(0.7)
-                        .frame(width: 50, height: 50)
+                        .frame(width: headerOpacity > 0.8 ? 44 : 50, height: headerOpacity > 0.8 ? 44 : 50) // Shrink button when scrolling
                         .shadow(color: Color.glassShadow, radius: 8, x: 0, y: 4)
                     
                     Circle()
@@ -120,141 +197,44 @@ struct ContentView: View {
                             ),
                             lineWidth: 0.7
                         )
-                        .frame(width: 50, height: 50)
+                        .frame(width: headerOpacity > 0.8 ? 44 : 50, height: headerOpacity > 0.8 ? 44 : 50)
                     
                     Image(systemName: "person.crop.circle.fill")
-                        .font(.system(size: 30))
+                        .font(.system(size: headerOpacity > 0.8 ? 26 : 30))
                         .foregroundColor(.textPrimary)
                 }
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: headerOpacity)
             }
-        }
-    }
-    
-    // Quick stats view
-    private var quickStatsView: some View {
-        VStack(spacing: 16) {
-            // Section title
-            HStack {
-                Text("Quick Insights")
-                    .font(.headline)
-                    .foregroundColor(.textPrimary)
-                
-                Spacer()
-                
-                Button(action: {}) {
-                    Text("See All")
-                        .font(.subheadline)
-                        .foregroundColor(.accentGreen)
+            .contentShape(Circle())
+            .scaleEffect(isCardPressed ? 0.95 : 1.0)
+            .onTapGesture {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    isCardPressed = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                        isCardPressed = false
+                    }
                 }
             }
-            
-            // Stats cards
-            HStack(spacing: 16) {
-                // Heart rate card
-                statCard(
-                    title: "Heart Rate",
-                    value: "68",
-                    unit: "bpm",
-                    icon: "heart.fill",
-                    color: .accentRed
-                )
-                
-                // Sleep card
-                statCard(
-                    title: "Sleep",
-                    value: "7.5",
-                    unit: "hrs",
-                    icon: "moon.fill",
-                    color: .sleepTeal
-                )
-            }
-            
-            HStack(spacing: 16) {
-                // Recovery card
-                statCard(
-                    title: "Recovery",
-                    value: "85",
-                    unit: "%",
-                    icon: "battery.75",
-                    color: .recoveryGreen
-                )
-                
-                // Stress card
-                statCard(
-                    title: "Stress",
-                    value: "Low",
-                    unit: "",
-                    icon: "waveform.path",
-                    color: .stressBlue
-                )
-            }
         }
     }
     
-    // Helper function to create stat cards
-    private func statCard(title: String, value: String, unit: String, icon: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Icon
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.2))
-                    .frame(width: 36, height: 36)
-                
-                Image(systemName: icon)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(color)
-            }
-            
-            // Title
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.textSecondary)
-            
-            // Value
-            HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text(value)
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(.textPrimary)
-                
-                Text(unit)
-                    .font(.caption2)
-                    .foregroundColor(.textSecondary)
-                    .padding(.leading, 2)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 18)
-                .fill(.ultraThinMaterial)
-                .opacity(0.5)
-                .background(Color.cardBackgroundAlt.opacity(0.4))
-                .cornerRadius(18)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .stroke(
-                    LinearGradient(
-                        gradient: Gradient(colors: [Color.white.opacity(0.2), Color.white.opacity(0.05)]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 0.7
-                )
-        )
-    }
-    
-    // Custom tab bar with glass effect
+    // Custom tab bar with glass effect and selection animations
     private var customTabBar: some View {
         HStack(spacing: 0) {
             ForEach(0..<tabItems.count, id: \.self) { index in
                 Button(action: {
-                    selectedTab = index
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        selectedTab = index
+                    }
                 }) {
                     VStack(spacing: 4) {
                         Image(systemName: tabIcons[index])
                             .font(.system(size: 20))
                             .foregroundColor(selectedTab == index ? .accentGreen : .textSecondary)
+                            .scaleEffect(selectedTab == index ? 1.1 : 1.0)
+                            .shadow(color: selectedTab == index ? Color.accentGreen.opacity(0.5) : .clear, radius: 5, x: 0, y: 3)
                         
                         Text(tabItems[index])
                             .font(.caption2)
@@ -262,7 +242,19 @@ struct ContentView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
+                    .background(
+                        ZStack {
+                            if selectedTab == index {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.accentGreen.opacity(0.15))
+                                    .frame(width: 60, height: 32)
+                                    .blur(radius: 12)
+                                    .opacity(0.7)
+                            }
+                        }
+                    )
                 }
+                .buttonStyle(ScalingButtonStyle())
             }
         }
         .padding(.horizontal, 16)
@@ -288,6 +280,23 @@ struct ContentView: View {
             }
             .ignoresSafeArea()
         )
+    }
+}
+
+// Custom button style for scaling animation
+struct ScalingButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.94 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+    }
+}
+
+// Preference key to track scroll offset
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 

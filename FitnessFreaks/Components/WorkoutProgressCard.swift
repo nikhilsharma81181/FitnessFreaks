@@ -1,5 +1,8 @@
 import SwiftUI
 
+// File: WorkoutProgressCard.swift
+// Path: /YourProjectName/Views/Components/WorkoutProgressCard.swift
+
 struct WorkoutProgressCard: View {
     let weekDays = ["M", "T", "W", "T", "F", "S", "S"]
     let currentDay = 10 // Example value
@@ -12,12 +15,12 @@ struct WorkoutProgressCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Monday, Mar \(currentDay)")
                         .font(.subheadline)
-                        .foregroundColor(.textSecondary)
+                        .foregroundColor(.white.opacity(0.7))
                     
                     Text("Workout Activity")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.textPrimary)
+                        .foregroundColor(.white)
                 }
                 
                 Spacer()
@@ -30,31 +33,52 @@ struct WorkoutProgressCard: View {
                     HStack(spacing: 4) {
                         Text("This Week")
                             .font(.subheadline)
-                            .foregroundColor(.textPrimary)
+                            .foregroundColor(.white)
                         
                         Image(systemName: "chevron.down")
                             .font(.caption)
-                            .foregroundColor(.textSecondary)
+                            .foregroundColor(.white.opacity(0.7))
                     }
-                    .glassButtonStyle(accentColor: .accentGreen)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(.ultraThinMaterial)
+                            .opacity(0.3) // More transparent
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+                            )
+                    )
                 }
             }
 
             // Week day indicators with enhanced styling
-            HStack(spacing: 12) {
+            HStack(spacing: 8) {
                 ForEach(0..<7) { index in
                     let day = currentDay - 3 + index // Example calculation
                     VStack(spacing: 6) {
                         Text(weekDays[index])
                             .font(.caption)
-                            .foregroundColor(activeWorkoutDays.contains(day) ? .textPrimary : .textTertiary)
+                            .foregroundColor(activeWorkoutDays.contains(day) ? .white : .white.opacity(0.5))
                         
                         Text("\(day)")
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.textPrimary)
+                            .foregroundColor(.white)
                     }
-                    .frame(width: 36, height: 64)
-                    .metricIndicatorStyle(isActive: activeWorkoutDays.contains(day), accentColor: .accentGreen)
+                    .frame(width: 40, height: 64)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(activeWorkoutDays.contains(day) ? 
+                                  Color.vibrantMint.opacity(0.25) : 
+                                  Color.black.opacity(0.2))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(activeWorkoutDays.contains(day) ? 
+                                            Color.vibrantMint.opacity(0.7) : 
+                                            Color.clear, lineWidth: 1.5)
+                            )
+                    )
                 }
             }
             .padding(.vertical, 4)
@@ -65,7 +89,7 @@ struct WorkoutProgressCard: View {
             HStack(spacing: 4) {
                 Text("Previous Weeks")
                     .font(.subheadline)
-                    .foregroundColor(.textTertiary)
+                    .foregroundColor(.white.opacity(0.5))
                     .padding(.trailing, 10)
                 
                 ForEach(0..<12) { index in
@@ -73,7 +97,10 @@ struct WorkoutProgressCard: View {
                         .fill(
                             LinearGradient(
                                 gradient: Gradient(
-                                    colors: [Color.accentGreen.opacity(0.7), Color.accentGreen]
+                                    colors: [
+                                        Color.vibrantMint.opacity(0.7), 
+                                        Color.vibrantMint
+                                    ]
                                 ),
                                 startPoint: .leading,
                                 endPoint: .trailing
@@ -89,14 +116,14 @@ struct WorkoutProgressCard: View {
             
         }
         .padding(24)
-        .glassCardStyle(cornerRadius: 28)
+        .glassCard(cornerRadius: 28, transparency: 0.8) // More transparent glass
     }
 }
 
 #Preview {
     ZStack {
-        Color.darkBackground
-            .ignoresSafeArea()
+        BackgroundGradient()
+        
         WorkoutProgressCard()
             .padding()
     }
