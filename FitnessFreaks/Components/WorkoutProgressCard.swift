@@ -13,6 +13,7 @@ struct WorkoutProgressCard: View {
                     Text("Monday, Mar \(currentDay)")
                         .font(.subheadline)
                         .foregroundColor(.textSecondary)
+                    
                     Text("Workout Activity")
                         .font(.title2)
                         .fontWeight(.bold)
@@ -35,18 +36,45 @@ struct WorkoutProgressCard: View {
                             .font(.caption)
                             .foregroundColor(.textSecondary)
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(Color.cardBackground.opacity(0.6))
-                    .cornerRadius(20)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.glassBorder, lineWidth: 1)
-                    )
+                    .glassButtonStyle(accentColor: .accentGreen)
                 }
             }
             
-            // Week day indicators
+            // Score indicator
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Activity Score")
+                        .font(.caption)
+                        .foregroundColor(.textSecondary)
+                    
+                    Text("85")
+                        .font(.system(size: 36, weight: .bold))
+                        .foregroundColor(.accentGreen)
+                }
+                
+                Spacer()
+                
+                // Small progress indicator
+                ZStack {
+                    Circle()
+                        .stroke(Color.cardBackgroundAlt, lineWidth: 4)
+                        .frame(width: 48, height: 48)
+                    
+                    Circle()
+                        .trim(from: 0, to: 0.85)
+                        .stroke(Color.accentGreen, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                        .frame(width: 48, height: 48)
+                        .rotationEffect(.degrees(-90))
+                }
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(Color.cardBackgroundAlt.opacity(0.6))
+            )
+            .glassBorder(cornerRadius: 18)
+            
+            // Week day indicators with enhanced styling
             HStack(spacing: 12) {
                 ForEach(0..<7) { index in
                     let day = currentDay - 3 + index // Example calculation
@@ -60,17 +88,72 @@ struct WorkoutProgressCard: View {
                             .foregroundColor(.textPrimary)
                     }
                     .frame(width: 36, height: 64)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(activeWorkoutDays.contains(day) ? Color.accentGreen.opacity(0.3) : Color.cardBackground.opacity(0.5))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(activeWorkoutDays.contains(day) ? Color.accentGreen : Color.clear, lineWidth: 1.5)
-                            )
-                    )
+                    .metricIndicatorStyle(isActive: activeWorkoutDays.contains(day), accentColor: .accentGreen)
                 }
             }
             .padding(.vertical, 4)
+            
+            // Activity breakdown section
+            VStack(alignment: .leading, spacing: 15) {
+                Text("Activity Breakdown")
+                    .font(.caption)
+                    .foregroundColor(.textSecondary)
+                
+                // Activity metrics
+                HStack(spacing: 24) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("4,250")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(.textPrimary)
+                        Text("Steps")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("1.8 km")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(.textPrimary)
+                        Text("Distance")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("245")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(.textPrimary)
+                        Text("Calories")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                    }
+                }
+                
+                // Simplified bar chart
+                HStack(spacing: 5) {
+                    ForEach(0..<7) { index in
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(
+                                        colors: [Color.accentGreen.opacity(0.5), Color.accentGreen]
+                                    ),
+                                    startPoint: .bottom,
+                                    endPoint: .top
+                                )
+                            )
+                            .frame(width: 12, height: CGFloat(30 + index * 5))
+                    }
+                }
+                .frame(height: 70)
+                .padding(.top, 5)
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(Color.cardBackgroundAlt.opacity(0.6))
+            )
+            .glassBorder(cornerRadius: 18)
             
             // Previous weeks indicator
             HStack(spacing: 5) {
@@ -119,28 +202,7 @@ struct WorkoutProgressCard: View {
             }
         }
         .padding(24)
-        .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 28)
-                    .fill(Color.cardBackground)
-                
-                // Subtle gradient overlay
-                RoundedRectangle(cornerRadius: 28)
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(colors: [Color.accentGreen.opacity(0.1), Color.clear]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .blendMode(.overlay)
-                
-                // Glass effect border
-                RoundedRectangle(cornerRadius: 28)
-                    .stroke(Color.glassBorder, lineWidth: 1)
-            }
-        )
-        .shadow(color: Color.glassShadow, radius: 15, x: 0, y: 10)
+        .glassCardStyle(cornerRadius: 28)
     }
 }
 
