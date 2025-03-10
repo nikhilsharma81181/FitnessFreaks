@@ -3,13 +3,17 @@ import SwiftUI
 extension Color {
     // Background colors
     static let darkBackground = Color.black
-    static let cardBackground = Color(red: 0.08, green: 0.08, blue: 0.09, opacity: 0.85)
-    static let cardBackgroundAlt = Color(red: 0.12, green: 0.12, blue: 0.14, opacity: 0.85)
+    static let cardBackground = Color(red: 0.08, green: 0.08, blue: 0.09, opacity: 0.7) // More transparent for glass effect
+    static let cardBackgroundAlt = Color(red: 0.12, green: 0.12, blue: 0.14, opacity: 0.6)
     
     // Glass effect colors
-    static let glassOverlay = Color.white.opacity(0.05)
+    static let glassOverlay = Color.white.opacity(0.07)
     static let glassBorder = Color.white.opacity(0.15)
-    static let glassShadow = Color.black.opacity(0.3)
+    static let glassShadow = Color.black.opacity(0.25)
+    
+    // Vibrant mint/teal for gradients
+    static let vibrantMint = Color(red: 0.0, green: 0.9, blue: 0.7)
+    static let vibrantTeal = Color(red: 0.0, green: 0.75, blue: 0.8)
     
     // Text colors
     static let textPrimary = Color.white

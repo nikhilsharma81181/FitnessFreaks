@@ -7,7 +7,7 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            // Enhanced background layers
+            // Background with vibrant mint/teal gradient
             backgroundLayers
             
             VStack {
@@ -19,7 +19,7 @@ struct ContentView: View {
                             .padding(.horizontal, 24)
                             .padding(.top, 16)
                         
-                        // Main card - enhanced WorkoutProgressCard
+                        // Main card - WorkoutProgressCard
                         WorkoutProgressCard()
                             .padding(.horizontal, 24)
                         
@@ -42,53 +42,51 @@ struct ContentView: View {
         .preferredColorScheme(.dark)
     }
     
-    // Enhanced background gradient layers
+    // Updated background with vibrant mint/teal radial gradient
     private var backgroundLayers: some View {
         ZStack {
             // Pure black background
-            Color.darkBackground
+            Color.black
                 .ignoresSafeArea()
             
-            // Enhanced gradient blobs
-            ZStack {
-                // Purple gradient blob
-                RadialGradient(
-                    gradient: Gradient(colors: [.gradientPurple, .clear]),
-                    center: .topLeading,
-                    startRadius: 50,
-                    endRadius: 700
-                )
-                .opacity(0.6)
-                
-                // Green gradient blob
-                RadialGradient(
-                    gradient: Gradient(colors: [.gradientGreen, .clear]),
-                    center: .bottom,
-                    startRadius: 50,
-                    endRadius: 500
-                )
-                .opacity(0.4)
-                
-                // Red gradient blob
-                RadialGradient(
-                    gradient: Gradient(colors: [.gradientRed, .clear]),
-                    center: .topTrailing,
-                    startRadius: 50,
-                    endRadius: 600
-                )
-                .opacity(0.6)
+            // Vibrant mint/teal radial gradient with frosted light source effect
+            VStack {
+                ZStack {
+                    // Main radial gradient with vibrant teal/mint
+                    RadialGradient(
+                        gradient: Gradient(colors: [.vibrantMint, .vibrantTeal.opacity(0.5), .clear]),
+                        center: .topTrailing,
+                        startRadius: 20,
+                        endRadius: 600
+                    )
+                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 0.5)
+                    .opacity(0.45)
+                    .blur(radius: 40) // Soft blur for frosted effect
+                    
+                    // Secondary smaller highlight for "light source" effect
+                    RadialGradient(
+                        gradient: Gradient(colors: [.white.opacity(0.4), .clear]),
+                        center: .topTrailing,
+                        startRadius: 5,
+                        endRadius: 100
+                    )
+                    .frame(width: 200, height: 200)
+                    .offset(x: -20, y: 20)
+                    .blur(radius: 20)
+                }
+                Spacer()
             }
             .ignoresSafeArea()
             
-            // Ultra thin material blur for glass effect
+            // Subtle glass-like overlay for entire screen
             Rectangle()
                 .fill(.ultraThinMaterial)
-                .opacity(0.2)
+                .opacity(0.1)
                 .ignoresSafeArea()
         }
     }
     
-    // Enhanced header with user info and profile button
+    // Header with user info and profile button
     private var headerView: some View {
         HStack(alignment: .center, spacing: 16) {
             // User info
@@ -104,16 +102,24 @@ struct ContentView: View {
             
             Spacer()
             
-            // Enhanced profile button with glass effect
+            // Profile button with glass effect
             Button(action: {}) {
                 ZStack {
                     Circle()
-                        .fill(Color.cardBackground.opacity(0.5))
+                        .fill(.ultraThinMaterial)
+                        .opacity(0.7)
                         .frame(width: 50, height: 50)
-                        .shadow(color: Color.glassShadow, radius: 10, x: 0, y: 5)
+                        .shadow(color: Color.glassShadow, radius: 8, x: 0, y: 4)
                     
                     Circle()
-                        .stroke(Color.glassBorder, lineWidth: 1)
+                        .stroke(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.7
+                        )
                         .frame(width: 50, height: 50)
                     
                     Image(systemName: "person.crop.circle.fill")
@@ -124,7 +130,7 @@ struct ContentView: View {
         }
     }
     
-    // New quick stats cards section
+    // Quick stats view
     private var quickStatsView: some View {
         VStack(spacing: 16) {
             // Section title
@@ -220,9 +226,22 @@ struct ContentView: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 18)
-                .fill(Color.cardBackgroundAlt.opacity(0.6))
+                .fill(.ultraThinMaterial)
+                .opacity(0.5)
+                .background(Color.cardBackgroundAlt.opacity(0.4))
+                .cornerRadius(18)
         )
-        .glassBorder(cornerRadius: 18)
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke(
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color.white.opacity(0.2), Color.white.opacity(0.05)]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 0.7
+                )
+        )
     }
     
     // Custom tab bar with glass effect
@@ -251,16 +270,20 @@ struct ContentView: View {
         .background(
             ZStack {
                 Rectangle()
-                    .fill(Color.cardBackground.opacity(0.95))
-                
-                Rectangle()
                     .fill(.ultraThinMaterial)
-                    .opacity(0.5)
+                    .opacity(0.7)
+                    .background(Color.cardBackground.opacity(0.4))
                 
                 // Top border
                 Rectangle()
-                    .fill(Color.glassBorder)
-                    .frame(height: 1)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.white.opacity(0.2), Color.white.opacity(0.05)]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .frame(height: 0.5)
                     .frame(maxHeight: .infinity, alignment: .top)
             }
             .ignoresSafeArea()

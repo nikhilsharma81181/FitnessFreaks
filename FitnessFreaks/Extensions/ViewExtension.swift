@@ -14,31 +14,56 @@ extension View {
         )
     }
     
-    // Glass card background styling
-    func glassCardStyle(cornerRadius: CGFloat = 28) -> some View {
+    // Enhanced glass card styling with frosted appearance
+    func glassCardStyle(cornerRadius: CGFloat = 24) -> some View {
         self.background(
             ZStack {
-                // Base background
+                // Blurred background for frosted glass effect
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(.ultraThinMaterial)
+                    .opacity(0.7)
+                
+                // Dark overlay for contrast
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(Color.cardBackground)
+                    .opacity(0.6)
                 
-                // Subtle gradient overlay
+                // Subtle inner glow effect
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(
+                        RadialGradient(
+                            gradient: Gradient(colors: [Color.white.opacity(0.08), Color.clear]),
+                            center: .topLeading,
+                            startRadius: 0,
+                            endRadius: 300
+                        )
+                    )
+                    .blendMode(.overlay)
+                
+                // Glass highlight
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(
                         LinearGradient(
                             gradient: Gradient(colors: [Color.white.opacity(0.1), Color.clear]),
                             startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+                            endPoint: .center
                         )
                     )
                     .blendMode(.overlay)
                 
-                // Glass effect border
+                // Refined border
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(Color.glassBorder, lineWidth: 1)
+                    .stroke(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 0.7
+                    )
             }
         )
-        .shadow(color: Color.glassShadow, radius: 15, x: 0, y: 10)
+        .shadow(color: Color.black.opacity(0.25), radius: 12, x: 0, y: 6)
     }
     
     // Custom accent glass button style
