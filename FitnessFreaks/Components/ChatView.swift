@@ -100,12 +100,6 @@ struct ChatView: View {
         // Chat messages - using ScrollViewReader for better scrolling performance
         ScrollViewReader { proxy in
           ScrollView {
-            // Add a GeometryReader at the top to help prevent freezing issues
-            GeometryReader { geometry in
-              Color.clear.frame(height: 1)
-            }
-            .frame(height: 1)
-
             LazyVStack(spacing: 16) {
               // Add spacer at the top with a specific ID to allow bouncing
               Color.clear
@@ -131,12 +125,7 @@ struct ChatView: View {
             .padding(.top, 16)
             .padding(.bottom, 8)
           }
-          .simultaneousGesture(
-            DragGesture().onChanged { _ in
-              // This helps prevent the scroll view from becoming unresponsive
-              // by ensuring drag gestures are captured
-            }
-          )
+          .scrollDisabled(false)
           .onAppear {
             scrollProxy = proxy
             // Initial scroll to bottom
@@ -170,7 +159,7 @@ struct ChatView: View {
           .font(.system(size: 28, weight: .bold))
           .foregroundColor(.white)
 
-        Text("Your AI fitness companion")
+        Text("Connect with your guide")
           .font(.subheadline)
           .foregroundColor(.white.opacity(0.7))
       }

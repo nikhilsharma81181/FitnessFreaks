@@ -29,9 +29,9 @@ struct BackgroundGradientView: View {
       self.primaryColor = .chatGradient1
       self.secondaryColor = .chatGradient2
     case .profile:
-      // Using default mint/teal for profile
-      self.primaryColor = .vibrantMint
-      self.secondaryColor = .vibrantTeal
+      // Using dedicated profile gradient colors
+      self.primaryColor = .profileGradient1
+      self.secondaryColor = .profileGradient2
     }
   }
 
@@ -78,6 +78,48 @@ struct BackgroundGradientView: View {
           .frame(width: 200, height: 200)
           .offset(x: -20, y: 20)
           .blur(radius: 20)
+
+          // Additional subtle mood gradient based on tab type
+          if primaryColor == .homepageGradient1 {
+            // For homepage: subtle bottom accent for balance
+            RadialGradient(
+              gradient: Gradient(colors: [.homepageGradient2.opacity(0.2), .clear]),
+              center: .bottomLeading,
+              startRadius: 5,
+              endRadius: 300
+            )
+            .frame(maxWidth: .infinity)
+            .frame(height: screenSize.height * 0.3)
+            .offset(y: screenSize.height * 0.3)
+            .opacity(0.5)
+            .blur(radius: 40)
+          } else if primaryColor == .fitnessGradient1 {
+            // For fitness: energy pulse from center
+            RadialGradient(
+              gradient: Gradient(colors: [.fitnessGradient1.opacity(0.3), .clear]),
+              center: .center,
+              startRadius: 5,
+              endRadius: 250
+            )
+            .frame(width: screenSize.width * 0.8)
+            .frame(height: screenSize.height * 0.3)
+            .offset(y: screenSize.height * 0.1)
+            .opacity(0.4)
+            .blur(radius: 30)
+          } else if primaryColor == .chatGradient1 {
+            // For chat: warm glow from bottom
+            RadialGradient(
+              gradient: Gradient(colors: [.chatGradient2.opacity(0.2), .clear]),
+              center: .bottom,
+              startRadius: 5,
+              endRadius: 300
+            )
+            .frame(maxWidth: .infinity)
+            .frame(height: screenSize.height * 0.4)
+            .offset(y: screenSize.height * 0.2)
+            .opacity(0.4)
+            .blur(radius: 35)
+          }
         }
         Spacer()
       }

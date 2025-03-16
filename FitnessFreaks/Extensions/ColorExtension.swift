@@ -23,20 +23,29 @@ extension Color {
     static let vibrantMint = Color(red: 0.0, green: 0.9, blue: 0.7)
     static let vibrantTeal = Color(red: 0.0, green: 0.75, blue: 0.8)
 
-    // Homepage gradient colors (Energizing, motivational - blue/purple hues)
-    // Blue evokes trust, reliability, and calmness
-    static let homepageGradient1 = Color(red: 0.0, green: 0.6, blue: 0.9)  // Bright blue - energizing
-    static let homepageGradient2 = Color(red: 0.4, green: 0.2, blue: 0.8)  // Purple - inspiring
+    // Homepage gradient colors - Updated for motivation and energy
+    // Deep blue to blue-purple: Creates feelings of trust, reliability, and aspiration
+    // Blue is associated with productivity, peace, and stability - perfect for a dashboard/overview
+    static let homepageGradient1 = Color(red: 0.0, green: 0.45, blue: 0.9)  // Deeper blue - trustworthy, stable
+    static let homepageGradient2 = Color(red: 0.3, green: 0.15, blue: 0.7)  // Rich purple - inspiring, aspiration
 
-    // Fitness gradient colors (Active, powerful - green/teal hues)
-    // Green represents growth, health, and vitality
-    static let fitnessGradient1 = Color(red: 0.0, green: 0.9, blue: 0.7)  // Vibrant mint - active
-    static let fitnessGradient2 = Color(red: 0.0, green: 0.75, blue: 0.8)  // Teal - focused
+    // Fitness gradient colors - Updated for energy and vitality
+    // Green to teal gradient: Evokes feelings of growth, energy, and health
+    // Green is associated with vitality, renewal, and action - ideal for fitness activities
+    static let fitnessGradient1 = Color(red: 0.1, green: 0.8, blue: 0.4)  // Energetic green - vitality, action
+    static let fitnessGradient2 = Color(red: 0.0, green: 0.7, blue: 0.75)  // Teal - focus, endurance
 
-    // Chat gradient colors (Communicative, calm - purple/pink hues)
-    // Purple signifies wisdom and creativity, pink represents communication
-    static let chatGradient1 = Color(red: 0.55, green: 0.35, blue: 0.95)  // Purple - wisdom
-    static let chatGradient2 = Color(red: 0.9, green: 0.3, blue: 0.7)  // Pink - communication
+    // Chat gradient colors - Updated for communication and trust
+    // Purple to warmer pink: Enhances feelings of connection, wisdom, and warmth
+    // Purple conveys wisdom and creativity, while warmer pink enhances communication and connection
+    static let chatGradient1 = Color(red: 0.5, green: 0.35, blue: 0.9)  // Soft purple - wisdom, comfort
+    static let chatGradient2 = Color(red: 0.9, green: 0.35, blue: 0.6)  // Warm pink - communication, connection
+
+    // Profile gradient colors - New dedicated gradient for the profile page
+    // Teal to green-blue: Represents personality, trust, and self-expression
+    // Teal with green-blue provides a sense of balance, clarity, and reliability
+    static let profileGradient1 = Color(red: 0.0, green: 0.7, blue: 0.65)  // Teal - balance, reliability
+    static let profileGradient2 = Color(red: 0.15, green: 0.55, blue: 0.8)  // Blue-green - personality, clarity
 
     // Accent colors
     static let accentGreen = Color(red: 0.15, green: 0.85, blue: 0.55)

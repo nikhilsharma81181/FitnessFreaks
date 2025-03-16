@@ -89,7 +89,7 @@ struct ProfileView: View {
   // Header view for the sticky header
   private var headerView: some View {
     HStack {
-      Text("Profile")
+      Text("")
         .font(.system(size: headerOpacity > 0.8 ? 22 : 28, weight: .bold))
         .foregroundColor(.white)
 

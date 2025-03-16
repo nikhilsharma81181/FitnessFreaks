@@ -44,7 +44,7 @@ struct FitnessView: View {
       BackgroundGradientView(forTab: .fitness)
 
       VStack(spacing: 0) {
-        // Header with welcome message and profile
+        // Header with title and notification
         headerView
 
         ScrollView {
@@ -86,7 +86,7 @@ struct FitnessView: View {
           .font(.system(size: 28, weight: .bold))
           .foregroundColor(.white)
 
-        Text("Manage your workout plans")
+        Text("Energize your day")
           .font(.subheadline)
           .foregroundColor(.white.opacity(0.7))
       }
