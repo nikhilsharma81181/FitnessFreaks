@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 struct WorkoutPlan: Identifiable, Equatable {
   var id = UUID()
@@ -41,17 +40,8 @@ struct FitnessView: View {
 
   var body: some View {
     ZStack {
-      // Background
-      Color.black.ignoresSafeArea()
-
-      // Vibrant gradient background
-      backgroundGradientView
-
-      // Subtle glass-like overlay
-      Rectangle()
-        .fill(.ultraThinMaterial)
-        .opacity(0.1)
-        .ignoresSafeArea()
+      // Using our reusable background with fitness-specific colors
+      BackgroundGradientView(forTab: .fitness)
 
       VStack(spacing: 0) {
         // Header with welcome message and profile
@@ -86,41 +76,6 @@ struct FitnessView: View {
         isLoaded = true
       }
     }
-  }
-
-  // Background gradient view extracted to reduce complexity
-  private var backgroundGradientView: some View {
-    VStack {
-      ZStack {
-        // Main radial gradient with vibrant teal/mint
-        RadialGradient(
-          gradient: Gradient(colors: [
-            Color(red: 0.0, green: 0.9, blue: 0.7),  // vibrantMint
-            Color(red: 0.0, green: 0.75, blue: 0.8).opacity(0.5),  // vibrantTeal
-            .clear,
-          ]),
-          center: .topTrailing,
-          startRadius: 20,
-          endRadius: 600
-        )
-        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 0.5)
-        .opacity(0.45)
-        .blur(radius: 40)  // Soft blur for frosted effect
-
-        // Secondary smaller highlight for "light source" effect
-        RadialGradient(
-          gradient: Gradient(colors: [.white.opacity(0.4), .clear]),
-          center: .topTrailing,
-          startRadius: 5,
-          endRadius: 100
-        )
-        .frame(width: 200, height: 200)
-        .offset(x: -20, y: 20)
-        .blur(radius: 20)
-      }
-      Spacer()
-    }
-    .ignoresSafeArea()
   }
 
   // Header view with title and notification

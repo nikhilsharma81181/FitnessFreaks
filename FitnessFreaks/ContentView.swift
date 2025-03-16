@@ -1,9 +1,9 @@
 import SwiftUI
-import UIKit
 
 struct ContentView: View {
     @State private var selectedTab = 0
     @State private var scrollOffset: CGFloat = 0
+    @State private var screenSize: CGSize = .zero
     private let tabItems = ["Homepage", "Fitness", "Chat", "Profile"]
     private let tabIcons = [
         "house.fill", "figure.strengthtraining.traditional", "bubble.left.fill", "person.fill",
@@ -13,42 +13,51 @@ struct ContentView: View {
     @State private var isCardPressed = false
 
     var body: some View {
-        ZStack {
-            // Background with vibrant mint/teal gradient
-            backgroundLayers
+        GeometryReader { geometry in
+            ZStack {
+                // Background with vibrant mint/teal gradient
+                backgroundLayers
 
-            VStack(spacing: 0) {
-                // Content based on selected tab
-                tabContent
+                VStack(spacing: 0) {
+                    // Content based on selected tab
+                    tabContent
 
-                // Custom tab bar
-                customTabBar
-            }
-
-            // Animated sticky header
-            VStack {
-                if selectedTab != 1 {  // Only show header for non-Fitness tabs
-                    headerView
-                        .padding(.horizontal, 24)
-                        .padding(.top, 16)
-                        .padding(.bottom, 8)
-                        .background(
-                            Rectangle()
-                                .fill(.ultraThinMaterial)
-                                .opacity(headerOpacity)
-                                .blur(radius: 0.5)
-                                .shadow(
-                                    color: Color.black.opacity(headerOpacity * 0.2), radius: 10,
-                                    x: 0, y: 5
-                                )
-                                .ignoresSafeArea()
-                        )
+                    // Custom tab bar
+                    customTabBar
                 }
 
-                Spacer()
+                // Animated sticky header
+                VStack {
+                    if selectedTab != 1 && selectedTab != 2 {  // Only show header for Homepage and Profile tabs
+                        headerView
+                            .padding(.horizontal, 24)
+                            .padding(.top, 16)
+                            .padding(.bottom, 8)
+                            .background(
+                                Rectangle()
+                                    .fill(.ultraThinMaterial)
+                                    .opacity(headerOpacity)
+                                    .blur(radius: 0.5)
+                                    .shadow(
+                                        color: Color.black.opacity(headerOpacity * 0.2), radius: 10,
+                                        x: 0, y: 5
+                                    )
+                                    .ignoresSafeArea()
+                            )
+                    }
+
+                    Spacer()
+                }
+            }
+            .preferredColorScheme(.dark)
+            .screenSize(geometry.size)
+            .onAppear {
+                self.screenSize = geometry.size
+            }
+            .onChange(of: geometry.size) { newSize in
+                self.screenSize = newSize
             }
         }
-        .preferredColorScheme(.dark)
     }
 
     // Content changes based on selected tab
@@ -61,11 +70,11 @@ struct ContentView: View {
                 // Fitness tab
                 FitnessView()
             } else if selectedTab == 2 {
-                // Chat tab - Placeholder
-                placeholderView(title: "Chat", systemImage: "bubble.left.fill")
+                // Chat tab - Now using the actual ChatView
+                ChatView()
             } else {
-                // Profile tab - Placeholder
-                placeholderView(title: "Profile", systemImage: "person.fill")
+                // Profile tab - Using the new ProfileView instead of placeholder
+                ProfileView()
             }
         }
     }
@@ -127,7 +136,7 @@ struct ContentView: View {
                         endRadius: 600
                     )
                     .frame(
-                        width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 0.5
+                        width: screenSize.width, height: screenSize.height * 0.5
                     )
                     .opacity(0.45)
                     .blur(radius: 40)  // Soft blur for frosted effect
