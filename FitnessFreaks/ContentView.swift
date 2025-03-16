@@ -1,141 +1,137 @@
 import SwiftUI
+import UIKit
 
 struct ContentView: View {
     @State private var selectedTab = 0
     @State private var scrollOffset: CGFloat = 0
-    private let tabItems = ["Activity", "Recovery", "Sleep", "Metrics"]
-    private let tabIcons = ["figure.run", "heart.fill", "moon.fill", "chart.bar.fill"]
-    
+    private let tabItems = ["Homepage", "Fitness", "Chat", "Profile"]
+    private let tabIcons = [
+        "house.fill", "figure.strengthtraining.traditional", "bubble.left.fill", "person.fill",
+    ]
+
     // Animation states
     @State private var isCardPressed = false
-    
+
     var body: some View {
         ZStack {
             // Background with vibrant mint/teal gradient
             backgroundLayers
-            
+
             VStack(spacing: 0) {
-                // Content
-                ScrollView {
-                    GeometryReader { geometry in
-                        Color.clear.preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scrollView")).minY)
-                    }
-                    .frame(height: 0)
-                    
-                    VStack(spacing: 24) {
-                        // Spacer for header
-                        Spacer()
-                            .frame(height: headerHeight)
-                        
-                        // Main card - WorkoutProgressCard with subtle hover animation
-                        WorkoutProgressCard()
-                            .padding(.horizontal, 24)
-                            .scaleEffect(isCardPressed ? 0.98 : 1.0)
-                            .shadow(color: Color.black.opacity(isCardPressed ? 0.2 : 0.3), 
-                                   radius: isCardPressed ? 10 : 15, 
-                                   x: 0, 
-                                   y: isCardPressed ? 5 : 8)
-                            .onTapGesture {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                                    isCardPressed = true
-                                }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                                        isCardPressed = false
-                                    }
-                                }
-                            }
-                        
-                        // Workout Intensity Graph - NEW SECTION
-                        WorkoutIntensityGraph()
-                            .padding(.horizontal, 24)
-                            .transition(.opacity.combined(with: .move(edge: .bottom)))
-                        
-                        // Quick insights section with subtle fade-in animation
-                        QuickInsightsView()
-                            .padding(.horizontal, 24)
-                            .transition(.opacity.combined(with: .scale(scale: 0.95)))
-                        
-                        // Graph metrics section
-                        GraphMetricsView()
-                            .padding(.horizontal, 24)
-                            .padding(.top, 8)
-                        
-                        // Bottom spacing
-                        Spacer()
-                            .frame(height: 90) // Space for tab bar
-                    }
-                    .padding(.vertical, 8)
-                }
-                .scrollIndicators(.hidden)
-                .coordinateSpace(name: "scrollView")
-                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-                    scrollOffset = value
-                }
-                
+                // Content based on selected tab
+                tabContent
+
                 // Custom tab bar
                 customTabBar
             }
-            
+
             // Animated sticky header
             VStack {
-                headerView
-                    .padding(.horizontal, 24)
-                    .padding(.top, 16)
-                    .padding(.bottom, 8)
-                    .background(
-                        Rectangle()
-                            .fill(.ultraThinMaterial)
-                            .opacity(headerOpacity)
-                            .blur(radius: 0.5)
-                            .shadow(color: Color.black.opacity(headerOpacity * 0.2), radius: 10, x: 0, y: 5)
-                            .ignoresSafeArea()
-                    )
-                
+                if selectedTab != 1 {  // Only show header for non-Fitness tabs
+                    headerView
+                        .padding(.horizontal, 24)
+                        .padding(.top, 16)
+                        .padding(.bottom, 8)
+                        .background(
+                            Rectangle()
+                                .fill(.ultraThinMaterial)
+                                .opacity(headerOpacity)
+                                .blur(radius: 0.5)
+                                .shadow(
+                                    color: Color.black.opacity(headerOpacity * 0.2), radius: 10,
+                                    x: 0, y: 5
+                                )
+                                .ignoresSafeArea()
+                        )
+                }
+
                 Spacer()
             }
         }
         .preferredColorScheme(.dark)
     }
-    
-    // Header height changes based on scroll position for shrinking effect
-    private var headerHeight: CGFloat {
-        let defaultHeight: CGFloat = 90
-        let minHeight: CGFloat = 70
-        let scrollThreshold: CGFloat = -100
-        
-        // Calculate shrink factor based on scroll
-        let shrinkFactor = min(1.0, max(0, abs(min(0, scrollOffset)) / abs(scrollThreshold)))
-        return defaultHeight - (defaultHeight - minHeight) * shrinkFactor
+
+    // Content changes based on selected tab
+    private var tabContent: some View {
+        ZStack {
+            if selectedTab == 0 {
+                // Homepage tab (formerly Activity tab)
+                HomeView()
+            } else if selectedTab == 1 {
+                // Fitness tab
+                FitnessView()
+            } else if selectedTab == 2 {
+                // Chat tab - Placeholder
+                placeholderView(title: "Chat", systemImage: "bubble.left.fill")
+            } else {
+                // Profile tab - Placeholder
+                placeholderView(title: "Profile", systemImage: "person.fill")
+            }
+        }
     }
-    
+
+    // Placeholder for tabs not yet implemented
+    private func placeholderView(title: String, systemImage: String) -> some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            Image(systemName: systemImage)
+                .font(.system(size: 70))
+                .foregroundColor(.accentGreen)
+                .padding()
+                .background(
+                    Circle()
+                        .fill(Color.accentGreen.opacity(0.1))
+                        .frame(width: 150, height: 150)
+                )
+
+            Text("\(title) Coming Soon")
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.textPrimary)
+
+            Text("We're working on something amazing for you")
+                .font(.body)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.textSecondary)
+                .padding(.horizontal, 32)
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+    }
+
     // Computed property for header opacity based on scroll position
     private var headerOpacity: Double {
         let threshold: CGFloat = -50
         return Double(min(1.0, max(0, abs(min(0, scrollOffset)) / abs(threshold))))
     }
-    
+
     // Updated background with vibrant mint/teal radial gradient
     private var backgroundLayers: some View {
         ZStack {
             // Pure black background
             Color.black
                 .ignoresSafeArea()
-            
+
             // Vibrant mint/teal radial gradient with frosted light source effect
             VStack {
                 ZStack {
                     // Main radial gradient with vibrant teal/mint
                     RadialGradient(
-                        gradient: Gradient(colors: [.vibrantMint, .vibrantTeal.opacity(0.5), .clear]),
+                        gradient: Gradient(colors: [
+                            Color.vibrantMint, Color.vibrantTeal.opacity(0.5), .clear,
+                        ]),
                         center: .topTrailing,
                         startRadius: 20,
                         endRadius: 600
                     )
-                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 0.5)
+                    .frame(
+                        width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 0.5
+                    )
                     .opacity(0.45)
-                    .blur(radius: 40) // Soft blur for frosted effect
-                    
+                    .blur(radius: 40)  // Soft blur for frosted effect
+
                     // Secondary smaller highlight for "light source" effect
                     RadialGradient(
                         gradient: Gradient(colors: [.white.opacity(0.4), .clear]),
@@ -150,7 +146,7 @@ struct ContentView: View {
                 Spacer()
             }
             .ignoresSafeArea()
-            
+
             // Subtle glass-like overlay for entire screen
             Rectangle()
                 .fill(.ultraThinMaterial)
@@ -158,7 +154,7 @@ struct ContentView: View {
                 .ignoresSafeArea()
         }
     }
-    
+
     // Header with user info and profile button - now with shrinking animation
     private var headerView: some View {
         HStack(alignment: .center, spacing: 16) {
@@ -167,38 +163,49 @@ struct ContentView: View {
                 Text("Welcome back")
                     .font(.headline)
                     .foregroundColor(.textSecondary)
-                    .opacity(1 - headerOpacity * 0.7) // Fade out when scrolling
-                
+                    .opacity(1 - headerOpacity * 0.7)  // Fade out when scrolling
+
                 Text("Nikhil Sharma")
-                    .font(.system(size: headerOpacity > 0.8 ? 22 : 28, weight: .bold)) // Shrink text size when scrolling
+                    .font(.system(size: headerOpacity > 0.8 ? 22 : 28, weight: .bold))  // Shrink text size when scrolling
                     .fontWeight(.bold)
                     .foregroundColor(.textPrimary)
                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: headerOpacity)
             }
-            .scaleEffect(x: 1.0, y: headerOpacity > 0.8 ? 0.9 : 1.0, anchor: .leading) // Shrink vertically
-            
+            .scaleEffect(x: 1.0, y: headerOpacity > 0.8 ? 0.9 : 1.0, anchor: .leading)  // Shrink vertically
+
             Spacer()
-            
+
             // Profile button with glass effect and dynamic sizing
-            Button(action: {}) {
+            Button(action: {
+                withAnimation {
+                    selectedTab = 3  // Switch to Profile tab
+                }
+            }) {
                 ZStack {
                     Circle()
                         .fill(.ultraThinMaterial)
                         .opacity(0.7)
-                        .frame(width: headerOpacity > 0.8 ? 44 : 50, height: headerOpacity > 0.8 ? 44 : 50) // Shrink button when scrolling
+                        .frame(
+                            width: headerOpacity > 0.8 ? 44 : 50,
+                            height: headerOpacity > 0.8 ? 44 : 50
+                        )  // Shrink button when scrolling
                         .shadow(color: Color.glassShadow, radius: 8, x: 0, y: 4)
-                    
+
                     Circle()
                         .stroke(
                             LinearGradient(
-                                gradient: Gradient(colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)]),
+                                gradient: Gradient(colors: [
+                                    Color.white.opacity(0.3), Color.white.opacity(0.1),
+                                ]),
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
                             lineWidth: 0.7
                         )
-                        .frame(width: headerOpacity > 0.8 ? 44 : 50, height: headerOpacity > 0.8 ? 44 : 50)
-                    
+                        .frame(
+                            width: headerOpacity > 0.8 ? 44 : 50,
+                            height: headerOpacity > 0.8 ? 44 : 50)
+
                     Image(systemName: "person.crop.circle.fill")
                         .font(.system(size: headerOpacity > 0.8 ? 26 : 30))
                         .foregroundColor(.textPrimary)
@@ -219,7 +226,7 @@ struct ContentView: View {
             }
         }
     }
-    
+
     // Custom tab bar with glass effect and selection animations
     private var customTabBar: some View {
         HStack(spacing: 0) {
@@ -234,8 +241,11 @@ struct ContentView: View {
                             .font(.system(size: 20))
                             .foregroundColor(selectedTab == index ? .accentGreen : .textSecondary)
                             .scaleEffect(selectedTab == index ? 1.1 : 1.0)
-                            .shadow(color: selectedTab == index ? Color.accentGreen.opacity(0.5) : .clear, radius: 5, x: 0, y: 3)
-                        
+                            .shadow(
+                                color: selectedTab == index
+                                    ? Color.accentGreen.opacity(0.5) : .clear, radius: 5, x: 0, y: 3
+                            )
+
                         Text(tabItems[index])
                             .font(.caption2)
                             .foregroundColor(selectedTab == index ? .textPrimary : .textTertiary)
@@ -265,12 +275,14 @@ struct ContentView: View {
                     .fill(.ultraThinMaterial)
                     .opacity(0.7)
                     .background(Color.cardBackground.opacity(0.4))
-                
+
                 // Top border
                 Rectangle()
                     .fill(
                         LinearGradient(
-                            gradient: Gradient(colors: [Color.white.opacity(0.2), Color.white.opacity(0.05)]),
+                            gradient: Gradient(colors: [
+                                Color.white.opacity(0.2), Color.white.opacity(0.05),
+                            ]),
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -292,14 +304,7 @@ struct ScalingButtonStyle: ButtonStyle {
     }
 }
 
-// Preference key to track scroll offset
-struct ScrollOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
-}
-
+// For SwiftUI preview
 #Preview {
     ContentView()
 }
