@@ -1,5 +1,8 @@
 import SwiftUI
 
+// File: ContentView.swift
+// Path: /FitnessFreaks/ContentView.swift
+
 struct ContentView: View {
     @State private var selectedTab = 0
     @State private var scrollOffset: CGFloat = 0
@@ -26,28 +29,7 @@ struct ContentView: View {
                     customTabBar
                 }
 
-                // Animated sticky header
-                VStack {
-                    if selectedTab != 1 && selectedTab != 2 {  // Only show header for Homepage and Profile tabs
-                        headerView
-                            .padding(.horizontal, 24)
-                            .padding(.top, 16)
-                            .padding(.bottom, 8)
-                            .background(
-                                Rectangle()
-                                    .fill(.ultraThinMaterial)
-                                    .opacity(headerOpacity)
-                                    .blur(radius: 0.5)
-                                    .shadow(
-                                        color: Color.black.opacity(headerOpacity * 0.2), radius: 10,
-                                        x: 0, y: 5
-                                    )
-                                    .ignoresSafeArea()
-                            )
-                    }
-
-                    Spacer()
-                }
+               
             }
             .preferredColorScheme(.dark)
             .screenSize(geometry.size)
@@ -164,77 +146,7 @@ struct ContentView: View {
         }
     }
 
-    // Header with user info and profile button - now with shrinking animation
-    private var headerView: some View {
-        HStack(alignment: .center, spacing: 16) {
-            // User info
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Welcome back")
-                    .font(.headline)
-                    .foregroundColor(.textSecondary)
-                    .opacity(1 - headerOpacity * 0.7)  // Fade out when scrolling
-
-                Text("Nikhil Sharma")
-                    .font(.system(size: headerOpacity > 0.8 ? 22 : 28, weight: .bold))  // Shrink text size when scrolling
-                    .fontWeight(.bold)
-                    .foregroundColor(.textPrimary)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: headerOpacity)
-            }
-            .scaleEffect(x: 1.0, y: headerOpacity > 0.8 ? 0.9 : 1.0, anchor: .leading)  // Shrink vertically
-
-            Spacer()
-
-            // Profile button with glass effect and dynamic sizing
-            Button(action: {
-                withAnimation {
-                    selectedTab = 3  // Switch to Profile tab
-                }
-            }) {
-                ZStack {
-                    Circle()
-                        .fill(.ultraThinMaterial)
-                        .opacity(0.7)
-                        .frame(
-                            width: headerOpacity > 0.8 ? 44 : 50,
-                            height: headerOpacity > 0.8 ? 44 : 50
-                        )  // Shrink button when scrolling
-                        .shadow(color: Color.glassShadow, radius: 8, x: 0, y: 4)
-
-                    Circle()
-                        .stroke(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color.white.opacity(0.3), Color.white.opacity(0.1),
-                                ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.7
-                        )
-                        .frame(
-                            width: headerOpacity > 0.8 ? 44 : 50,
-                            height: headerOpacity > 0.8 ? 44 : 50)
-
-                    Image(systemName: "person.crop.circle.fill")
-                        .font(.system(size: headerOpacity > 0.8 ? 26 : 30))
-                        .foregroundColor(.textPrimary)
-                }
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: headerOpacity)
-            }
-            .contentShape(Circle())
-            .scaleEffect(isCardPressed ? 0.95 : 1.0)
-            .onTapGesture {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                    isCardPressed = true
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                        isCardPressed = false
-                    }
-                }
-            }
-        }
-    }
+   
 
     // Custom tab bar with glass effect and selection animations
     private var customTabBar: some View {
@@ -273,7 +185,7 @@ struct ContentView: View {
                         }
                     )
                 }
-                .buttonStyle(ScalingButtonStyle())
+                .buttonStyle(ContentScalingButtonStyle())
             }
         }
         .padding(.horizontal, 16)
@@ -283,7 +195,7 @@ struct ContentView: View {
                 Rectangle()
                     .fill(.ultraThinMaterial)
                     .opacity(0.7)
-                    .background(Color.cardBackground.opacity(0.4))
+                    .background(Color.black.opacity(0.4))
 
                 // Top border
                 Rectangle()
@@ -305,7 +217,7 @@ struct ContentView: View {
 }
 
 // Custom button style for scaling animation
-struct ScalingButtonStyle: ButtonStyle {
+struct ContentScalingButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.94 : 1)

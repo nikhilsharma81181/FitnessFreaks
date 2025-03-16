@@ -1,125 +1,131 @@
 import SwiftUI
 
+// File: HomeView.swift
+// Path: /FitnessFreaks/Components/HomeView.swift
+
 struct HomeView: View {
   @State private var scrollOffset: CGFloat = 0
   @State private var isCardPressed = false
+  @State private var isLoaded = false
 
   var body: some View {
     ZStack {
       // Using our reusable background with home-specific colors
       BackgroundGradientView(forTab: .home)
 
-      ScrollView(showsIndicators: false) {
-        VStack(spacing: 24) {
-          // Spacer for header
-          Spacer()
-            .frame(height: 90)
+      VStack(spacing: 0) {
+        // Header view (moved from ContentView)
+        headerView
+          .padding(.horizontal, 20)
+          .padding(.top, 65)
+          .padding(.bottom, 16)
+          // Removed the background, blur, shadow, and ignoresSafeArea
 
-          // Main card - WorkoutProgressCard with subtle hover animation
-          WorkoutProgressCard()
-            .scaleEffect(isCardPressed ? 0.98 : 1.0)
-            .shadow(
-              color: Color.black.opacity(isCardPressed ? 0.2 : 0.3),
-              radius: isCardPressed ? 10 : 15,
-              x: 0,
-              y: isCardPressed ? 5 : 8
-            )
-            .onTapGesture {
-              withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                isCardPressed = true
-              }
-              DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                  isCardPressed = false
+        // Main content
+        ScrollView {
+          VStack(spacing: 24) {
+            // Main card - WorkoutProgressCard with subtle hover animation
+            WorkoutProgressCard()
+              .scaleEffect(isCardPressed ? 0.98 : 1.0)
+              .shadow(
+                color: Color.black.opacity(isCardPressed ? 0.2 : 0.3),
+                radius: isCardPressed ? 10 : 15,
+                x: 0,
+                y: isCardPressed ? 5 : 8
+              )
+              .onTapGesture {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                  isCardPressed = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                  withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                    isCardPressed = false
+                  }
                 }
               }
-            }
 
-          // Workout Intensity Graph
-          WorkoutIntensityGraph()
-            .transition(.opacity.combined(with: .move(edge: .bottom)))
+            // Workout Intensity Graph
+            WorkoutIntensityGraph()
+              .transition(.opacity.combined(with: .move(edge: .bottom)))
 
-          // Quick insights section with subtle fade-in animation
-          QuickInsightsView()
-            .transition(.opacity.combined(with: .scale(scale: 0.95)))
+            // Quick insights section with subtle fade-in animation
+            QuickInsightsView()
+              .transition(.opacity.combined(with: .scale(scale: 0.95)))
 
-          // Graph metrics section
-          GraphMetricsView()
-            .padding(.top, 8)
+            // Graph metrics section
+            GraphMetricsView()
+              .padding(.top, 8)
 
-          // Bottom spacing
-          Spacer()
-            .frame(height: 90)  // Space for tab bar
-        }
-        .padding(.horizontal, 16)
-        .background(
-          GeometryReader { geometry in
-            Color.clear.preference(
-              key: ScrollOffsetPreferenceKey.self,
-              value: geometry.frame(in: .named("scrollView")).minY
-            )
+            // Bottom spacing
+            Spacer()
+              .frame(height: 90)  // Space for tab bar
           }
-        )
-      }
-      .coordinateSpace(name: "scrollView")
-      .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-        scrollOffset = value
-      }
-
-      // Add translucent header
-      VStack {
-        // Header view
-        headerView
-          .padding(.horizontal, 24)
+          .padding(.horizontal, 16)
           .padding(.top, 16)
           .padding(.bottom, 8)
-          .background(
-            Rectangle()
-              .fill(.ultraThinMaterial)
-              .opacity(headerOpacity)
-              .blur(radius: 0.5)
-              .shadow(
-                color: Color.black.opacity(headerOpacity * 0.2),
-                radius: 10,
-                x: 0,
-                y: 5
-              )
-              .ignoresSafeArea()
-          )
-
-        Spacer()
+        }
+        .scrollIndicators(.hidden)
+      }
+    }
+    .ignoresSafeArea(edges: .top)
+    .onAppear {
+      withAnimation(.easeOut(duration: 0.5).delay(0.2)) {
+        isLoaded = true
       }
     }
   }
 
-  // Header view - can be customized for the homepage
+  // Header with user info and profile button (from ContentView)
   private var headerView: some View {
     HStack(alignment: .center, spacing: 16) {
-      // Title
+      // User info
       VStack(alignment: .leading, spacing: 4) {
-        Text("")
-          .font(.system(size: headerOpacity > 0.8 ? 22 : 28, weight: .bold))
-          .foregroundColor(.white)
-          .animation(.spring(response: 0.3, dampingFraction: 0.7), value: headerOpacity)
+        Text("Welcome back")
+          .font(.headline)
+          .foregroundColor(.white.opacity(0.7))
 
-        // if headerOpacity < 0.5 {
-        //   Text("Track your progress")
-        //     .font(.subheadline)
-        //     .foregroundColor(.white.opacity(0.7))
-        //     .opacity(1 - headerOpacity * 2)
-        // }
+        Text("Nikhil Sharma")
+          .font(.system(size: 28, weight: .bold))
+          .foregroundColor(.white)
       }
-      .scaleEffect(x: 1.0, y: headerOpacity > 0.8 ? 0.9 : 1.0, anchor: .leading)
 
       Spacer()
+
+      // Profile button with glass effect
+      Button(action: {
+        // Switch to Profile tab action
+      }) {
+        ZStack {
+          Circle()
+            .fill(.ultraThinMaterial)
+            .opacity(0.7)
+            .frame(width: 46, height: 46)
+            .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+
+          Circle()
+            .stroke(
+              LinearGradient(
+                gradient: Gradient(colors: [
+                  Color.white.opacity(0.3), Color.white.opacity(0.1),
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+              ),
+              lineWidth: 0.7
+            )
+            .frame(width: 46, height: 46)
+
+          Image(systemName: "person.crop.circle.fill")
+            .font(.system(size: 26))
+            .foregroundColor(.white)
+        }
+      }
+      .buttonStyle(HomeScalingButtonStyle())
     }
   }
 
   // Computed property for header opacity based on scroll position
-  private var headerOpacity: Double {
-    let threshold: CGFloat = -50
-    return Double(min(1.0, max(0, abs(min(0, scrollOffset)) / abs(threshold))))
-  }
+  // Removed the headerOpacity computed property since we're no longer using it
 }
 
 // Preference key to track scroll offset
@@ -127,6 +133,15 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
   static var defaultValue: CGFloat = 0
   static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
     value = nextValue()
+  }
+}
+
+// Custom button style for scaling animation (from ContentView)
+struct HomeScalingButtonStyle: ButtonStyle {
+  func makeBody(configuration: Configuration) -> some View {
+    configuration.label
+      .scaleEffect(configuration.isPressed ? 0.94 : 1)
+      .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
   }
 }
 

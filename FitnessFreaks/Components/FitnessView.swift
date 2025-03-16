@@ -1,5 +1,8 @@
 import SwiftUI
 
+// File: FitnessView.swift
+// Path: /FitnessFreaks/Views/Fitness/FitnessView.swift
+
 struct WorkoutPlan: Identifiable, Equatable {
   var id = UUID()
   let name: String
@@ -46,6 +49,9 @@ struct FitnessView: View {
       VStack(spacing: 0) {
         // Header with title and notification
         headerView
+          .padding(.horizontal, 20)
+          .padding(.top, 16)
+          .padding(.bottom, 16)
 
         ScrollView {
           VStack(spacing: 24) {
@@ -96,9 +102,6 @@ struct FitnessView: View {
       // Notification button
       notificationButton
     }
-    .padding(.horizontal, 20)
-    .padding(.top, 16)
-    .padding(.bottom, 16)
   }
 
   // Notification button extracted to reduce complexity
@@ -158,6 +161,9 @@ struct FitnessView: View {
       .background(
         actionButtonBackground(color: Color(red: 0.0, green: 0.9, blue: 0.7))  // vibrantMint
       )
+    }
+    .fullScreenCover(isPresented: $showingNewWorkoutSheet) {
+      NewWorkoutView()
     }
     .opacity(isLoaded ? 1 : 0)
     .offset(y: isLoaded ? 0 : 20)
@@ -618,8 +624,6 @@ struct FitnessView: View {
 }
 
 // Preview
-struct FitnessView_Previews: PreviewProvider {
-  static var previews: some View {
-    FitnessView()
-  }
+#Preview {
+  FitnessView()
 }

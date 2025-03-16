@@ -90,22 +90,17 @@ struct ChatView: View {
 
   var body: some View {
     ZStack {
-      // Using our new reusable background with chat-specific colors
+      // Using our reusable background with chat-specific colors
       BackgroundGradientView(forTab: .chat)
 
       VStack(spacing: 0) {
         // Header
         headerView
 
-        // Chat messages - using ScrollViewReader for better scrolling performance
+        // Chat messages
         ScrollViewReader { proxy in
           ScrollView {
             LazyVStack(spacing: 16) {
-              // Add spacer at the top with a specific ID to allow bouncing
-              Color.clear
-                .frame(height: 1)
-                .id("topID")
-
               ForEach(messages) { message in
                 MessageView(message: message)
                   .id(message.id)
@@ -115,30 +110,28 @@ struct ChatView: View {
                   .animation(
                     .spring(response: 0.3, dampingFraction: 0.7), value: isAnimatingNewMessage)
               }
-
-              // Invisible spacer for auto-scrolling
-              Color.clear
-                .frame(height: 1)
-                .id("bottomID")
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
             .padding(.bottom, 8)
           }
-          .scrollDisabled(false)
+          .scrollDismissesKeyboard(.immediately)
+          .onTapGesture {
+            hideKeyboard()
+          }
           .onAppear {
             scrollProxy = proxy
             // Initial scroll to bottom
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
               withAnimation {
-                proxy.scrollTo("bottomID", anchor: .bottom)
+                proxy.scrollTo(messages.last?.id, anchor: .bottom)
               }
             }
           }
           .onChange(of: messages.count) { _ in
             // Scroll to bottom when new messages appear
             withAnimation {
-              proxy.scrollTo("bottomID", anchor: .bottom)
+              proxy.scrollTo(messages.last?.id, anchor: .bottom)
             }
           }
         }
@@ -217,7 +210,7 @@ struct ChatView: View {
             .padding(.vertical, 12)
             .foregroundColor(.white)
         }
-        .frame(height: 48)
+        .frame(height: 40)
 
         // Send button with theme-specific colors
         Button {
@@ -235,7 +228,7 @@ struct ChatView: View {
                   endPoint: .bottomTrailing
                 )
               )
-              .frame(width: 48, height: 48)
+              .frame(width: 40, height: 40)
               .shadow(
                 color: Color.chatGradient1.opacity(0.5), radius: 10, x: 0, y: 0)
 
@@ -287,6 +280,12 @@ struct ChatView: View {
         isAnimatingNewMessage = false
       }
     }
+  }
+
+  // Add this extension for keyboard dismissal
+  private func hideKeyboard() {
+    UIApplication.shared.sendAction(
+      #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
   }
 }
 
