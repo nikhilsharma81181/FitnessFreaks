@@ -40,6 +40,7 @@ struct FitnessView: View {
   @State private var isLoaded = false
   @State private var showingNewWorkoutSheet = false
   @State private var showingDiscoverSheet = false
+  @State private var sortingChanged = false
 
   var body: some View {
     ZStack {
@@ -145,7 +146,7 @@ struct FitnessView: View {
     Button {
       showingNewWorkoutSheet = true
     } label: {
-      HStack(spacing: 12) {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
         Image(systemName: "plus.circle.fill")
           .font(.system(size: 20))
           .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.7))  // vibrantMint
@@ -153,6 +154,7 @@ struct FitnessView: View {
         Text("New Workout")
           .font(.system(size: 16, weight: .semibold))
           .foregroundColor(.white)
+          .multilineTextAlignment(.leading)
 
         Spacer()
       }
@@ -175,7 +177,7 @@ struct FitnessView: View {
     Button {
       showingDiscoverSheet = true
     } label: {
-      HStack(spacing: 12) {
+      HStack(alignment: .firstTextBaseline, spacing: 12) {
         Image(systemName: "magnifyingglass")
           .font(.system(size: 20))
           .foregroundColor(Color(red: 0.55, green: 0.35, blue: 0.95))  // accentPurple
@@ -183,6 +185,7 @@ struct FitnessView: View {
         Text("Discover Workouts")
           .font(.system(size: 16, weight: .semibold))
           .foregroundColor(.white)
+          .multilineTextAlignment(.leading)
 
         Spacer()
       }
@@ -395,8 +398,10 @@ struct FitnessView: View {
     .opacity(isLoaded ? 1 : 0)
     .offset(y: isLoaded ? 0 : 20)
     .animation(
-      .spring(response: 0.4, dampingFraction: 0.7).delay(0.4 + (Double(index) * 0.05)),
-      value: isLoaded)
+      .spring(response: 0.4, dampingFraction: 0.7)
+      .delay(Double(index) * 0.03),
+      value: sortingChanged
+    )
   }
 
   // Workout icon view extracted to reduce complexity

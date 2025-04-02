@@ -22,3 +22,34 @@ Master Layout Tools: Employ VStack, HStack, ZStack, Spacer, and Padding for resp
 Add Visual Flair: Enhance UIs with shadows, gradients, blurs, custom shapes, and animations using the .animation() modifier for smooth transitions.
 
 Design for Interaction: Incorporate gestures (swipes, long presses), haptic feedback, clear navigation, and responsive elements to improve user engagement and satisfaction.
+
+
+### SwiftUI Project Structure
+
+- Observation Framework Integration: Use the new Observation framework introduced in Swift 5.9 for improved performance and state management, replacing older KVO and Combine approaches.
+
+- SwiftData for Persistence: Replace Core Data with SwiftData, Apple's new Swift-based persistence framework, which offers better integration with SwiftUI.
+
+- Dynamic Island Support: Include features compatible with Dynamic Island for iPhone 14 Pro, 15 series, and newer devices to enhance interactivity.
+Modules for Accessibility: Add an "Accessibility" module under "Utilities" to centralize accessibility-related helpers, ensuring compliance with Apple’s latest accessibility tools.
+
+### SwiftUI UI Design Rules Updates
+
+- Expanded Layout Capabilities: Utilize SwiftUI 5's enhanced ScrollView APIs, including contentMargins, safeAreaPadding, and scrollIndicatorsFlash for better scrolling experiences.
+
+- Pack Iteration for Complex UIs: Leverage Swift 6's pack iteration feature to dynamically handle large numbers of views without hitting previous limits.
+
+- TipKit Integration: Use TipKit to display contextual tips and guides within the app, enhancing user experience and onboarding.
+Advanced Animations: Implement precise animations using SwiftUI Transactions for smoother transitions and interactions.
+
+### Additional Coding Principles
+
+- Expression Macros in Swift 6: Use expression macros for cleaner default arguments and streamlined function calls.
+
+- Async/Await Enhancements: Fully utilize async/await patterns across networking and data fetching layers for modern concurrency support.
+
+- Dynamic AR/VR Features: Integrate RealityKit with support for Apple’s Reality Pro headset, enabling immersive fitness experiences.
+
+### Testing Enhancements
+Widget Testing Frameworks: Include tests for widget swipeability control introduced in Outbrain SDK updates.
+<!-- Performance Monitoring: Use Firebase Performance Monitoring to identify bottlenecks in real-time interactions. -->

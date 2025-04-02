@@ -59,7 +59,7 @@ struct QuickInsightsView: View {
                 
                 // Recovery card
                 insightCard(
-                    icon: "battery.75.fill",
+                    icon: "leaf.fill",
                     iconColor: .recoveryGreen,
                     bgColor: Color(red: 0.15, green: 0.35, blue: 0.2),
                     title: "Recovery",

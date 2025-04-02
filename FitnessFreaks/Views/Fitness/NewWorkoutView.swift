@@ -31,54 +31,30 @@ struct WorkoutScalingButtonStyle: ButtonStyle {
 struct NewWorkoutView: View {
   @Environment(\.dismiss) private var dismiss
   @State private var currentStep: WorkoutCreationStep = .selectMuscle
+  @State private var isLoaded = false
   
   var body: some View {
     ZStack {
-      // Custom energetic background for workout creation
-      ZStack {
-        // Base dark background
-        Color.black.ignoresSafeArea()
-
-        // Energetic purple/blue radial gradient for fitness
-        RadialGradient(
-          gradient: Gradient(colors: [
-            Color(red: 0.55, green: 0.35, blue: 0.95).opacity(0.7),  // Purple
-            Color(red: 0.15, green: 0.3, blue: 0.8).opacity(0.3),  // Deep blue
-            .clear,
-          ]),
-          center: .topTrailing,
-          startRadius: 10,
-          endRadius: 400
-        )
-        .ignoresSafeArea()
-
-        // Accent for visual interest
-        RadialGradient(
-          gradient: Gradient(colors: [
-            Color(red: 0.15, green: 0.85, blue: 0.55).opacity(0.5),  // Green accent
-            .clear,
-          ]),
-          center: .bottomLeading,
-          startRadius: 5,
-          endRadius: 300
-        )
-        .ignoresSafeArea()
-
-        // Subtle glass-like overlay
-        Rectangle()
-          .fill(.ultraThinMaterial)
-          .opacity(0.1)
-          .ignoresSafeArea()
-      }
-
+      // Custom background that matches main app's style
+      BackgroundGradientView(forTab: .fitness)
+      
       VStack(spacing: 0) {
         // Close button and title
         headerView
+          .padding(.horizontal, 20)
+          .padding(.top, 16)
+          .padding(.bottom, 16)
+          .opacity(isLoaded ? 1 : 0)
+          .offset(y: isLoaded ? 0 : 20)
+          .animation(.spring(response: 0.4, dampingFraction: 0.7).delay(0.1), value: isLoaded)
 
         // Step indicator
         StepIndicatorView(currentStep: currentStep)
           .padding(.top, 8)
-          .padding(.bottom, 8)
+          .padding(.bottom, 16)
+          .opacity(isLoaded ? 1 : 0)
+          .offset(y: isLoaded ? 0 : 20)
+          .animation(.spring(response: 0.4, dampingFraction: 0.7).delay(0.2), value: isLoaded)
 
         // Content based on current step
         Group {
@@ -97,15 +73,26 @@ struct NewWorkoutView: View {
     .preferredColorScheme(.dark)
     .edgesIgnoringSafeArea(.bottom)
     .animation(.easeInOut(duration: 0.3), value: currentStep)
+    .onAppear {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        isLoaded = true
+      }
+    }
   }
 
   // Header with title and close button
   private var headerView: some View {
     HStack {
       // Title
-      Text("Create Workout")
-        .font(.system(size: 28, weight: .bold))
-        .foregroundColor(.white)
+      VStack(alignment: .leading, spacing: 4) {
+        Text("Create Workout")
+          .font(.system(size: 28, weight: .bold))
+          .foregroundColor(.white)
+          
+        Text("Design your perfect routine")
+          .font(.subheadline)
+          .foregroundColor(.white.opacity(0.7))
+      }
 
       Spacer()
 
@@ -115,23 +102,22 @@ struct NewWorkoutView: View {
           dismiss()
         }
       } label: {
-        Image(systemName: "xmark")
-          .font(.system(size: 16, weight: .semibold))
-          .foregroundColor(.white)
-          .padding(12)
-          .background(
-            Circle()
-              .fill(.ultraThinMaterial)
-              .opacity(0.7)
-          )
-      }
-      .buttonStyle(WorkoutScalingButtonStyle()) // Fixed: Used a uniquely named button style
-    }
-    .padding(.horizontal, 20)
-    .padding(.top, 16)
-    .padding(.bottom, 16)
-  }
+        ZStack {
+          Circle()
+            .fill(.ultraThinMaterial)
+            .opacity(0.7)
+            .frame(width: 46, height: 46)
+            .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
 
+          Image(systemName: "xmark")
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundColor(.white)
+        }
+      }
+      .buttonStyle(WorkoutScalingButtonStyle())
+    }
+  }
+  
   // Navigation functions
   private func nextStep() {
     if let nextStep = WorkoutCreationStep(rawValue: currentStep.rawValue + 1) {

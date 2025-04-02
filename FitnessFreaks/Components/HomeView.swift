@@ -19,7 +19,7 @@ struct HomeView: View {
           .padding(.horizontal, 20)
           .padding(.top, 65)
           .padding(.bottom, 16)
-          // Removed the background, blur, shadow, and ignoresSafeArea
+        // Removed the background, blur, shadow, and ignoresSafeArea
 
         // Main content
         ScrollView {
@@ -44,8 +44,12 @@ struct HomeView: View {
                 }
               }
 
-            // Workout Intensity Graph
-            WorkoutIntensityGraph()
+            // Weight Tracking View
+            WeightTrackingView()
+              .transition(.opacity.combined(with: .move(edge: .bottom)))
+              
+            // Diet Tracking View
+            DietTrackingView()
               .transition(.opacity.combined(with: .move(edge: .bottom)))
 
             // Quick insights section with subtle fade-in animation
@@ -128,8 +132,8 @@ struct HomeView: View {
   // Removed the headerOpacity computed property since we're no longer using it
 }
 
-// Preference key to track scroll offset
-struct ScrollOffsetPreferenceKey: PreferenceKey {
+// Custom preference key for scroll offset - renamed to avoid conflict
+struct HomeScrollOffsetPreferenceKey: PreferenceKey {
   static var defaultValue: CGFloat = 0
   static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
     value = nextValue()

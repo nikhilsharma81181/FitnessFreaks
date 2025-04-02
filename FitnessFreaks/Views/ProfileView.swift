@@ -1,19 +1,33 @@
 import SwiftUI
 
 struct ProfileView: View {
+  @State private var userData: UserData = .placeholder
+  @State private var isLoading = true
+  @State private var errorMessage: String?
   @State private var scrollOffset: CGFloat = 0
 
-  // Sample user data
-  let userName = "Nikhil Sharma"
-  let userHandle = "@nikhil_fitness"
-  let userBio = "Fitness enthusiast | Marathon runner | Yoga practitioner"
-  let memberSince = "March 2023"
+  // Stats - These will remain static as placeholders
+  private var workoutsCompleted: Int { 158 }
+  private var achievements: Int { 23 }
+  private var followers: Int { 412 }
+  private var following: Int { 237 }
 
-  // Stats
-  let workoutsCompleted = 158
-  let achievements = 23
-  let followers = 412
-  let following = 237
+  private func loadUserData() {
+    Task {
+      do {
+        guard let token = CacheService.shared.getToken() else {
+          errorMessage = "No authentication token found"
+          return
+        }
+
+        userData = try await NetworkService.shared.fetchUserData(token: token)
+        isLoading = false
+      } catch {
+        errorMessage = "Failed to load user data: \(error.localizedDescription)"
+        isLoading = false
+      }
+    }
+  }
 
   var body: some View {
     ZStack {
@@ -36,9 +50,20 @@ struct ProfileView: View {
 
           // Profile header with avatar and basic info
           profileHeaderView
+            .redacted(reason: isLoading ? .placeholder : [])
+            .overlay {
+              if let error = errorMessage {
+                Text(error)
+                  .foregroundColor(.red)
+                  .padding()
+                  .background(Color.black.opacity(0.7))
+                  .cornerRadius(10)
+              }
+            }
 
           // Stats row
           statsView
+            .redacted(reason: isLoading ? .placeholder : [])
 
           // Sections
           achievementsSection
@@ -57,6 +82,9 @@ struct ProfileView: View {
       .coordinateSpace(name: "scrollView")
       .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
         scrollOffset = value
+      }
+      .onAppear {
+        loadUserData()
       }
 
       // Add translucent header
@@ -89,7 +117,7 @@ struct ProfileView: View {
   // Header view for the sticky header
   private var headerView: some View {
     HStack {
-      Text("")
+      Text(isLoading ? "Profile" : userData.fullName)
         .font(.system(size: headerOpacity > 0.8 ? 22 : 28, weight: .bold))
         .foregroundColor(.white)
 
@@ -126,28 +154,43 @@ struct ProfileView: View {
           .frame(width: 120, height: 120)
           .shadow(color: Color.vibrantTeal.opacity(0.3), radius: 10, x: 0, y: 0)
 
-        Image(systemName: "person.fill")
-          .font(.system(size: 60))
-          .foregroundColor(.white)
+        if let profilePhoto = userData.profilePhoto {
+          AsyncImage(url: URL(string: profilePhoto)) { image in
+            image
+              .resizable()
+              .aspectRatio(contentMode: .fill)
+          } placeholder: {
+            Image(systemName: "person.fill")
+              .font(.system(size: 60))
+              .foregroundColor(.white)
+          }
+          .frame(width: 120, height: 120)
+          .clipShape(Circle())
+        } else {
+          Image(systemName: "person.fill")
+            .font(.system(size: 60))
+            .foregroundColor(.white)
+        }
       }
 
       // User info
       VStack(spacing: 8) {
-        Text(userName)
+        Text(userData.fullName)
           .font(.system(size: 28, weight: .bold))
           .foregroundColor(.white)
 
-        Text(userHandle)
+        Text(userData.email)
           .font(.system(size: 16))
           .foregroundColor(.white.opacity(0.7))
 
-        Text(userBio)
-          .font(.system(size: 14))
-          .foregroundColor(.white.opacity(0.7))
-          .multilineTextAlignment(.center)
-          .padding(.top, 4)
+        if let country = userData.country {
+          Text("📍 \(country)")
+            .font(.system(size: 14))
+            .foregroundColor(.white.opacity(0.7))
+            .padding(.top, 4)
+        }
 
-        Text("Member since \(memberSince)")
+        Text("Member since \(userData.formattedCreatedAt)")
           .font(.system(size: 12))
           .foregroundColor(.white.opacity(0.5))
           .padding(.top, 4)
@@ -475,10 +518,12 @@ struct ProfileView: View {
   }
 }
 
-// Use the same preference key as HomeView
-// (In a real app, you would put this in a shared file)
-extension ScrollOffsetPreferenceKey {
-  // This is just to refer to the existing preference key
+// Preference key to track scroll offset
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+  static var defaultValue: CGFloat = 0
+  static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+    value = nextValue()
+  }
 }
 
 #Preview {
