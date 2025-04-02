@@ -10,11 +10,19 @@ struct MuscleGroup: Identifiable {
     let color: Color
 }
 
+// Define a struct for header parameters that conforms to Equatable
+struct HeaderAnimationParams: Equatable {
+    let offset: CGFloat
+    let opacity: CGFloat
+}
+
 struct SelectMuscleView: View {
     let onNext: () -> Void
     
     @State private var selectedMuscles: Set<UUID> = []
     @State private var isLoaded = false
+    @State private var animateArrow = false // State for arrow animation
+    @State private var scrollOffset: CGFloat = 0 // Track scroll position
     
     // Consistent color palette from the main app
     private let muscleGroups = [
@@ -38,18 +46,54 @@ struct SelectMuscleView: View {
         )
     }
 
+    // Very dark teal color for button text/icon
+    private var buttonTextColor: Color { Color(red: 0.0, green: 0.2, blue: 0.25) }
+    
+    // Computed properties based on scroll position
+    private var headerOffset: CGFloat {
+        let fullHideThreshold: CGFloat = 120 // Scroll position where header is fully hidden
+        
+        if scrollOffset <= 0 {
+            return 0 // Not scrolled - no offset
+        } else if scrollOffset >= fullHideThreshold {
+            return -60 // Fully scrolled - maximum offset
+        } else {
+            // Linear interpolation
+            return -60 * (scrollOffset / fullHideThreshold)
+        }
+    }
+    
+    private var headerOpacity: CGFloat {
+        let threshold: CGFloat = 70 // Threshold where header completely fades
+        return max(0, 1.0 - (scrollOffset / threshold))
+    }
+    
+    private var subtitleOpacity: CGFloat {
+        // Subtitle fades faster than the main title
+        return min(1, headerOpacity * 1.5)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
-            // Instruction header
+            // Instruction header with dynamic transformations
             instructionHeader
                 .padding(.horizontal, 20)
                 .padding(.bottom, 16)
-                .opacity(isLoaded ? 1 : 0)
-                .offset(y: isLoaded ? 0 : 10)
-                .animation(.spring(response: 0.4, dampingFraction: 0.7).delay(0.1), value: isLoaded)
+                .opacity(isLoaded && headerOpacity > 0 ? headerOpacity : 0)
+                .offset(y: isLoaded ? headerOffset : 10)
+                .animation(.interpolatingSpring(stiffness: 150, damping: 20), value: scrollOffset)
             
-            // Content area
+            // Content area with scroll tracking
             ScrollView(showsIndicators: false) {
+                // Scroll position detection
+                GeometryReader { geometry in
+                    Color.clear.preference(
+                        key: MuscleViewScrollOffsetKey.self,
+                        value: geometry.frame(in: .named("scrollView")).minY
+                    )
+                }
+                .frame(height: 0)
+                
                 VStack(spacing: 16) {
                     // Muscle group grid
                     muscleGrid
@@ -57,6 +101,11 @@ struct SelectMuscleView: View {
                     
                     Spacer().frame(height: 120) // Increased bottom padding for scroll visibility
                 }
+            }
+            .coordinateSpace(name: "scrollView")
+            .onPreferenceChange(MuscleViewScrollOffsetKey.self) { value in
+                // Convert positive scroll values to negative offset and vice versa
+                scrollOffset = -min(0, value)
             }
             
             // Fixed bottom button area
@@ -66,6 +115,8 @@ struct SelectMuscleView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 isLoaded = true
             }
+            // Start the arrow animation on appear
+            startArrowAnimation()
         }
     }
     
@@ -81,24 +132,9 @@ struct SelectMuscleView: View {
                 Text("Choose the areas you want to focus on")
                     .font(.system(size: 14))
                     .foregroundColor(.white.opacity(0.7))
+                    .opacity(subtitleOpacity)
             }
             Spacer()
-            
-            // Selection counter
-            selectionCounter
-        }
-    }
-
-    private var selectionCounter: some View {
-        ZStack {
-            Circle()
-                .fill(enabledButtonGradient)
-                .frame(width: 36, height: 36) // Slightly larger counter
-                .shadow(color: enabledButtonColor.opacity(0.4), radius: 5, x: 0, y: 2)
-            
-            Text("\(selectedMuscles.count)")
-                .font(.system(size: 14, weight: .bold))
-                .foregroundColor(.white)
         }
     }
 
@@ -119,14 +155,20 @@ struct SelectMuscleView: View {
 
     private var footerButtonArea: some View {
         VStack {
-            Button(action: onNext) {
-                HStack(spacing: 12) {
+            Button(action: {
+                // Trigger haptic feedback on tap if needed
+                // HapticManager.shared.impact(style: .medium)
+                onNext()
+            }) {
+                HStack(spacing: 8) { // Adjusted spacing
                     Text("Continue")
                         .font(.system(size: 18, weight: .semibold))
+                    
                     Image(systemName: "arrow.right")
                         .font(.system(size: 16, weight: .semibold))
+                        .offset(x: animateArrow ? 5 : 0) // Apply animation offset
                 }
-                .foregroundColor(.white)
+                .foregroundColor(selectedMuscles.isEmpty ? .white.opacity(0.6) : buttonTextColor) // Change text color
                 .frame(maxWidth: .infinity)
                 .frame(height: 56)
                 .background(buttonBackground)
@@ -157,7 +199,7 @@ struct SelectMuscleView: View {
 
     private var buttonOverlay: some View {
         Capsule()
-            .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+            .stroke(Color.white.opacity(selectedMuscles.isEmpty ? 0.05 : 0.1), lineWidth: 0.5)
     }
 
     private var shadowColor: Color {
@@ -169,7 +211,7 @@ struct SelectMuscleView: View {
     private var disabledButtonGradient: LinearGradient {
          LinearGradient(
             gradient: Gradient(colors: [
-                Color.gray.opacity(0.3),
+                Color.gray.opacity(0.2), // Slightly lighter disabled state
                 Color.gray.opacity(0.3)
             ]),
             startPoint: .leading,
@@ -293,6 +335,27 @@ struct SelectMuscleView: View {
         .allowsHitTesting(false) // Allow taps to pass through to the button
         .background(.ultraThinMaterial.opacity(0.4))
         .edgesIgnoringSafeArea(.bottom)
+    }
+    
+    // MARK: - Animation Helpers
+    
+    private func startArrowAnimation() {
+        // Only animate if muscles are selected
+        guard !selectedMuscles.isEmpty else { 
+            animateArrow = false // Reset if becomes disabled
+            return 
+        }
+        withAnimation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true)) {
+            animateArrow = true
+        }
+    }
+}
+
+// MARK: - Preference Key for Scroll Position
+struct MuscleViewScrollOffsetKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 

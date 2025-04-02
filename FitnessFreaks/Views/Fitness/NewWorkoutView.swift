@@ -18,6 +18,17 @@ enum WorkoutCreationStep: Int, CaseIterable {
       return "Configure Workout"
     }
   }
+  
+  var icon: String {
+    switch self {
+    case .selectMuscle:
+      return "figure.arms.open"
+    case .selectEquipment:
+      return "dumbbell.fill"
+    case .configureWorkout:
+      return "timer"
+    }
+  }
 }
 
 struct WorkoutScalingButtonStyle: ButtonStyle {
@@ -34,49 +45,115 @@ struct NewWorkoutView: View {
   @State private var isLoaded = false
   
   var body: some View {
-    ZStack {
-      // Custom background that matches main app's style
-      BackgroundGradientView(forTab: .fitness)
-      
-      VStack(spacing: 0) {
-        // Close button and title
-        headerView
-          .padding(.horizontal, 20)
-          .padding(.top, 16)
-          .padding(.bottom, 16)
-          .opacity(isLoaded ? 1 : 0)
-          .offset(y: isLoaded ? 0 : 20)
-          .animation(.spring(response: 0.4, dampingFraction: 0.7).delay(0.1), value: isLoaded)
+    GeometryReader { geometry in
+      ZStack {
+        // Custom workout themed background
+        workoutBackgroundGradient(geometry: geometry)
+        
+        VStack(spacing: 0) {
+          // Close button and title
+          headerView
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 16)
+            .opacity(isLoaded ? 1 : 0)
+            .offset(y: isLoaded ? 0 : 20)
+            .animation(.spring(response: 0.4, dampingFraction: 0.7).delay(0.1), value: isLoaded)
 
-        // Step indicator
-        StepIndicatorView(currentStep: currentStep)
-          .padding(.top, 8)
-          .padding(.bottom, 16)
-          .opacity(isLoaded ? 1 : 0)
-          .offset(y: isLoaded ? 0 : 20)
-          .animation(.spring(response: 0.4, dampingFraction: 0.7).delay(0.2), value: isLoaded)
+          // Step indicator
+          StepIndicatorView(currentStep: currentStep)
+            .padding(.top, 8)
+            .padding(.bottom, 16)
+            .opacity(isLoaded ? 1 : 0)
+            .offset(y: isLoaded ? 0 : 20)
+            .animation(.spring(response: 0.4, dampingFraction: 0.7).delay(0.2), value: isLoaded)
 
-        // Content based on current step
-        Group {
-          switch currentStep {
-          case .selectMuscle:
-            SelectMuscleView(onNext: nextStep)
-          case .selectEquipment:
-            SelectEquipmentView(onNext: nextStep, onBack: previousStep)
-          case .configureWorkout:
-            ConfigureWorkoutView(onBack: previousStep, onComplete: completeWorkout)
+          // Content based on current step
+          Group {
+            switch currentStep {
+            case .selectMuscle:
+              SelectMuscleView(onNext: nextStep)
+            case .selectEquipment:
+              SelectEquipmentView(onNext: nextStep, onBack: previousStep)
+            case .configureWorkout:
+              ConfigureWorkoutView(onBack: previousStep, onComplete: completeWorkout)
+            }
           }
+          .transition(.opacity.combined(with: .move(edge: .trailing)))
         }
-        .transition(.opacity.combined(with: .move(edge: .trailing)))
+      }
+      .preferredColorScheme(.dark)
+      .edgesIgnoringSafeArea(.bottom)
+      .animation(.easeInOut(duration: 0.3), value: currentStep)
+      .onAppear {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+          isLoaded = true
+        }
       }
     }
-    .preferredColorScheme(.dark)
-    .edgesIgnoringSafeArea(.bottom)
-    .animation(.easeInOut(duration: 0.3), value: currentStep)
-    .onAppear {
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-        isLoaded = true
+  }
+  
+  // Custom workout-themed background gradient
+  private func workoutBackgroundGradient(geometry: GeometryProxy) -> some View {
+    ZStack {
+      // Pure black background
+      Color.black.ignoresSafeArea()
+      
+      // Main gradient - energetic red-orange to deep purple
+      // Symbolizes intensity and transformation during workout creation
+      VStack {
+        ZStack {
+          // Main energetic gradient for workout creation
+          RadialGradient(
+            gradient: Gradient(colors: [
+              Color(red: 0.95, green: 0.3, blue: 0.35).opacity(0.7),  // Energetic red
+              Color(red: 0.55, green: 0.35, blue: 0.95).opacity(0.5),  // Purple
+              .clear,
+            ]),
+            center: .topTrailing,
+            startRadius: 20,
+            endRadius: 600
+          )
+          .frame(maxWidth: .infinity)
+          .frame(height: geometry.size.height * 0.5)
+          .opacity(0.7)
+          .blur(radius: 40)
+          
+          // Secondary strength-focused accent
+          RadialGradient(
+            gradient: Gradient(colors: [
+              Color(red: 0.15, green: 0.85, blue: 0.55).opacity(0.5),  // Green accent
+              .clear,
+            ]),
+            center: .bottomLeading,
+            startRadius: 5,
+            endRadius: 300
+          )
+          .frame(maxWidth: .infinity)
+          .frame(height: geometry.size.height * 0.4)
+          .opacity(0.4)
+          .blur(radius: 30)
+          
+          // Subtle highlight for contrast
+          RadialGradient(
+            gradient: Gradient(colors: [.white.opacity(0.4), .clear]),
+            center: .topTrailing,
+            startRadius: 5,
+            endRadius: 100
+          )
+          .frame(width: 200, height: 200)
+          .offset(x: -20, y: 20)
+          .blur(radius: 20)
+        }
+        Spacer()
       }
+      .ignoresSafeArea()
+      
+      // Subtle glass-like overlay
+      Rectangle()
+        .fill(.ultraThinMaterial)
+        .opacity(0.1)
+        .ignoresSafeArea()
     }
   }
 
