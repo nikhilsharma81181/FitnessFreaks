@@ -152,76 +152,108 @@ struct ContentView: View {
     private var customTabBar: some View {
         HStack(spacing: 0) {
             ForEach(0..<tabItems.count, id: \.self) { index in
-                Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        selectedTab = index
-                    }
-                }) {
-                    VStack(spacing: 4) {
-                        Image(systemName: tabIcons[index])
-                            .font(.system(size: 20))
-                            .foregroundColor(selectedTab == index ? .accentGreen : .textSecondary)
-                            .scaleEffect(selectedTab == index ? 1.1 : 1.0)
-                            .shadow(
-                                color: selectedTab == index
-                                    ? Color.accentGreen.opacity(0.5) : .clear, radius: 5, x: 0, y: 3
-                            )
-
-                        Text(tabItems[index])
-                            .font(.caption2)
-                            .foregroundColor(selectedTab == index ? .textPrimary : .textTertiary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .background(
-                        ZStack {
-                            if selectedTab == index {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.accentGreen.opacity(0.15))
-                                    .frame(width: 60, height: 32)
-                                    .blur(radius: 12)
-                                    .opacity(0.7)
-                            }
-                        }
-                    )
-                }
-                .buttonStyle(ContentScalingButtonStyle())
+                tabButton(for: index)
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(
-            ZStack {
-                Rectangle()
-                    .fill(.ultraThinMaterial)
-                    .opacity(0.7)
-                    .background(Color.black.opacity(0.4))
-
-                // Top border
-                Rectangle()
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                Color.white.opacity(0.2), Color.white.opacity(0.05),
-                            ]),
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .frame(height: 0.5)
-                    .frame(maxHeight: .infinity, alignment: .top)
+        .background(tabBarBackground)
+    }
+    
+    // Extracted tab button to simplify expressions
+    private func tabButton(for index: Int) -> some View {
+        Button(action: {
+            // Enhanced animation with spring and bounce effect
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7, blendDuration: 0.2)) {
+                selectedTab = index
             }
-            .ignoresSafeArea()
-        )
+        }) {
+            VStack(spacing: 4) {
+                // Tab icon
+                Image(systemName: tabIcons[index])
+                    .font(.system(size: 22))
+                    .foregroundColor(selectedTab == index ? .accentGreen : .textSecondary)
+                    .symbolEffect(.bounce, options: .speed(1.5), value: selectedTab == index)
+                    .frame(height: 24)
+                    .scaleEffect(selectedTab == index ? 1.2 : 1.0)
+                    .shadow(
+                        color: selectedTab == index ? Color.accentGreen.opacity(0.6) : .clear, 
+                        radius: 5, x: 0, y: 3
+                    )
+                    .contentTransition(.symbolEffect(.replace.downUp.byLayer))
+
+                // Tab label
+                Text(tabItems[index])
+                    .font(.caption2)
+                    .fontWeight(selectedTab == index ? .semibold : .regular)
+                    .foregroundColor(selectedTab == index ? .textPrimary : .textTertiary)
+                    .opacity(selectedTab == index ? 1.0 : 0.7)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .background(tabIndicator(isSelected: selectedTab == index))
+        }
+        .accessibilityLabel(tabItems[index])
+        .accessibilityAddTraits(selectedTab == index ? [.isSelected] : [])
+        .buttonStyle(TabButtonStyle())
+    }
+    
+    // Tab indicator background
+    private func tabIndicator(isSelected: Bool) -> some View {
+        ZStack {
+            if isSelected {
+                // Enhanced tab indicator with morphing animation
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.accentGreen.opacity(0.18))
+                    .frame(width: 65, height: 36)
+                    .blur(radius: 8)
+                    .opacity(0.8)
+                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+            }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.7, blendDuration: 0.3), value: isSelected)
+    }
+    
+    // Tab bar background with sliding indicator
+    private var tabBarBackground: some View {
+        ZStack {
+            // Base background with material effect
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .opacity(0.8)
+                .background(Color.black.opacity(0.5))
+                .shadow(color: .black.opacity(0.2), radius: 8, y: -4)
+
+            // Top border with gradient
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.2), Color.white.opacity(0.05),
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .frame(height: 0.5)
+                .frame(maxHeight: .infinity, alignment: .top)
+        }
+        .ignoresSafeArea()
     }
 }
 
-// Custom button style for scaling animation
-struct ContentScalingButtonStyle: ButtonStyle {
+// Custom button style specifically for tab buttons with haptic feedback
+struct TabButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.94 : 1)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? 0.92 : 1)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { wasPressed, isPressed in
+                if isPressed {
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                }
+            }
     }
 }
 

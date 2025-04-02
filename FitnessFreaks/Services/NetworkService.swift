@@ -185,4 +185,102 @@ class NetworkService {
       throw NetworkError.decodingError
     }
   }
+
+  func submitWeightManually(token: String, weight: Double, date: Date) async throws -> WeightEntry {
+    let url = URL(string: "\(baseURL)/api/weight-data")!
+    
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+    
+    print("Submitting weight manually to: \(url.absoluteString)")
+    
+    // Convert date to ISO8601 format
+    let isoDateFormatter = ISO8601DateFormatter()
+    let dateString = isoDateFormatter.string(from: date)
+    
+    let requestBody: [String: Any] = [
+      "weight": weight,
+      "date": dateString
+    ]
+    
+    let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+    request.httpBody = jsonData
+    
+    print("Request body: weight=\(weight), date=\(dateString)")
+    
+    let (data, response) = try await URLSession.shared.data(for: request)
+    
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw NetworkError.serverError("Invalid response")
+    }
+    
+    print("Manual weight submission response code: \(httpResponse.statusCode)")
+    
+    guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
+      let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+      print("Server error: \(errorMessage)")
+      throw NetworkError.serverError(
+        "Server returned error \(httpResponse.statusCode): \(errorMessage)")
+    }
+    
+    do {
+      // Log the raw response for debugging
+      let responseString = String(data: data, encoding: .utf8) ?? "No data"
+      print("Raw upload response: \(responseString)")
+      
+      // Define a response struct to match the server format
+      struct ManualEntryResponse: Codable {
+        let success: Bool
+        let data: EntryData
+        
+        struct EntryData: Codable {
+          let id: Int
+          let weight: Double
+          let date: String
+          let createdAt: String
+          let updatedAt: String
+          let userId: Int
+        }
+      }
+      
+      // Decode the response
+      let decoder = JSONDecoder()
+      decoder.keyDecodingStrategy = .useDefaultKeys
+      let uploadResponse = try decoder.decode(ManualEntryResponse.self, from: data)
+      print("Decoded response: id=\(uploadResponse.data.id), weight=\(uploadResponse.data.weight)")
+      
+      // Create a WeightEntry from the response data
+      let weightEntry = WeightEntry(
+        id: uploadResponse.data.id,
+        userId: uploadResponse.data.userId,
+        weight: uploadResponse.data.weight,
+        image: nil,
+        date: uploadResponse.data.date,
+        createdAt: uploadResponse.data.createdAt,
+        updatedAt: uploadResponse.data.updatedAt
+      )
+      
+      print("Created WeightEntry: id=\(weightEntry.id), weight=\(weightEntry.weight)")
+      return weightEntry
+    } catch {
+      print("Decoding error: \(error.localizedDescription)")
+      if let decodingError = error as? DecodingError {
+        switch decodingError {
+        case .keyNotFound(let key, let context):
+          print("Key '\(key)' not found: \(context.debugDescription)")
+        case .typeMismatch(let type, let context):
+          print("Type mismatch for type \(type): \(context.debugDescription)")
+        case .valueNotFound(let type, let context):
+          print("Value of type \(type) not found: \(context.debugDescription)")
+        case .dataCorrupted(let context):
+          print("Data corrupted: \(context.debugDescription)")
+        @unknown default:
+          print("Unknown decoding error: \(decodingError)")
+        }
+      }
+      throw NetworkError.decodingError
+    }
+  }
 }

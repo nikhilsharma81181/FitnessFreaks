@@ -14,6 +14,7 @@ struct WeightTrackingView: View {
   @State private var showImagePreview = false
   @State private var cameraWasDismissed = false
   @State private var showDetailView = false
+  @State private var showManualEntryForm = false
 
   // Animation control
   @State private var showGraph = false
@@ -35,12 +36,22 @@ struct WeightTrackingView: View {
 
         Spacer()
 
-        // Modern camera button with animation
-        Button(action: {
-          showCamera = true
-        }) {
+        // Input options menu
+        Menu {
+          Button(action: {
+            showManualEntryForm = true
+          }) {
+            Label("Enter Weight", systemImage: "keyboard")
+          }
+          
+          Button(action: {
+            showCamera = true
+          }) {
+            Label("Take Photo", systemImage: "camera.fill")
+          }
+        } label: {
           HStack(spacing: 6) {
-            Image(systemName: "camera.fill")
+            Image(systemName: "plus")
               .font(.system(size: 16))
             Text("Add")
               .font(.system(size: 16, weight: .medium))
@@ -180,6 +191,11 @@ struct WeightTrackingView: View {
         .onDisappear {
           cameraWasDismissed = false
         }
+    }
+    .sheet(isPresented: $showManualEntryForm) {
+      WeightEntryFormView(onWeightSubmitted: { newEntry in
+        handleNewWeightEntry(newEntry)
+      })
     }
     .fullScreenCover(isPresented: $showDetailView) {
       WeightDetailView(initialEntries: weightEntries)
@@ -704,6 +720,38 @@ struct WeightTrackingView: View {
         }
       }
     }
+  }
+
+  private func handleNewWeightEntry(_ entry: WeightEntry) {
+    // Check if entry already exists
+    let existingEntryIndex = self.weightEntries.firstIndex(where: { $0.id == entry.id })
+    
+    if let index = existingEntryIndex {
+      // Update existing entry
+      print("Entry with ID \(entry.id) already exists, updating it")
+      self.weightEntries[index] = entry
+    } else {
+      // Add new entry
+      print("Adding new entry with ID \(entry.id) to entries list")
+      self.weightEntries.append(entry)
+    }
+    
+    // Re-sort the entries by date
+    self.weightEntries.sort(by: { $0.dateObject > $1.dateObject })
+    
+    // Save updated list to cache
+    CacheService.shared.saveWeightData(self.weightEntries)
+    print("Updated cache with new entry. Total entries: \(self.weightEntries.count)")
+    
+    // Ensure graph is visible if it wasn't
+    if !showGraph {
+      withAnimation(.easeOut(duration: 0.6)) {
+        self.showGraph = true
+      }
+    }
+    
+    // Sync with backend to get the latest data
+    syncWithBackend()
   }
 
   // Helper to format time from ISO string

@@ -26,10 +26,10 @@ This document outlines the remaining tasks to complete the MVP/Release 1.0 of Fi
   - [x] Create frosted glass effect
   - [x] Add subtle border highlights
 
-- [ ] Complete TabBar Navigation System
+- [x] Complete TabBar Navigation System
   - [x] Implement tab switching
   - [x] Create tab icons and labels
-  - [ ] Finalize tab animations
+  - [x] Finalize tab animations
 
 ## Basic Weight Tracking
 
@@ -37,7 +37,7 @@ This document outlines the remaining tasks to complete the MVP/Release 1.0 of Fi
 
   - [x] Create WeightEntry model
   - [x] Build weight tracking view structure
-  - [ ] Complete weight entry input form
+  - [x] Complete weight entry input form
   - [ ] Implement weight history display
 
 - [ ] Local Storage
