@@ -13,7 +13,7 @@ struct LoginView: View {
   @State private var loadingRotation: Double = 0
   @State private var loadingScale: CGFloat = 1
   @State private var showLoadingOverlay = false
-  @State private var isAuthenticated = false
+  @Binding var isAuthenticated: Bool
   @State private var isAuthenticating = false
 
   // Updated token for the API
@@ -53,15 +53,8 @@ struct LoginView: View {
 
       // Hide loading overlay with slight delay for smooth transition
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-        print("Ready to navigate to home")
+        print("Authentication complete, ready for onboarding")
         self.showLoadingOverlay = false
-
-        // Add a short delay before setting navigateToHome to true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-          print("Setting navigateToHome = true")
-          self.navigateToHome = true
-          print("navigateToHome set to: \(self.navigateToHome)")
-        }
       }
     }
   }
@@ -316,7 +309,6 @@ struct LoginView: View {
 
 struct LoginView_Previews: PreviewProvider {
   static var previews: some View {
-    LoginView()
-      .preferredColorScheme(.dark)
+    LoginView(isAuthenticated: .constant(false))
   }
 }

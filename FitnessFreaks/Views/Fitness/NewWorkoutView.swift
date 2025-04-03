@@ -7,7 +7,7 @@ enum WorkoutCreationStep: Int, CaseIterable {
   case selectMuscle = 0
   case selectEquipment = 1
   case configureWorkout = 2
-  
+
   var title: String {
     switch self {
     case .selectMuscle:
@@ -18,7 +18,7 @@ enum WorkoutCreationStep: Int, CaseIterable {
       return "Configure Workout"
     }
   }
-  
+
   var icon: String {
     switch self {
     case .selectMuscle:
@@ -43,13 +43,13 @@ struct NewWorkoutView: View {
   @Environment(\.dismiss) private var dismiss
   @State private var currentStep: WorkoutCreationStep = .selectMuscle
   @State private var isLoaded = false
-  
+
   var body: some View {
     GeometryReader { geometry in
       ZStack {
         // Custom workout themed background
         workoutBackgroundGradient(geometry: geometry)
-        
+
         VStack(spacing: 0) {
           // Close button and title
           headerView
@@ -92,13 +92,13 @@ struct NewWorkoutView: View {
       }
     }
   }
-  
+
   // Custom workout-themed background gradient
   private func workoutBackgroundGradient(geometry: GeometryProxy) -> some View {
     ZStack {
       // Pure black background
       Color.black.ignoresSafeArea()
-      
+
       // Main gradient - energetic red-orange to deep purple
       // Symbolizes intensity and transformation during workout creation
       VStack {
@@ -118,7 +118,7 @@ struct NewWorkoutView: View {
           .frame(height: geometry.size.height * 0.5)
           .opacity(0.7)
           .blur(radius: 40)
-          
+
           // Secondary strength-focused accent
           RadialGradient(
             gradient: Gradient(colors: [
@@ -133,7 +133,7 @@ struct NewWorkoutView: View {
           .frame(height: geometry.size.height * 0.4)
           .opacity(0.4)
           .blur(radius: 30)
-          
+
           // Subtle highlight for contrast
           RadialGradient(
             gradient: Gradient(colors: [.white.opacity(0.4), .clear]),
@@ -148,7 +148,7 @@ struct NewWorkoutView: View {
         Spacer()
       }
       .ignoresSafeArea()
-      
+
       // Subtle glass-like overlay
       Rectangle()
         .fill(.ultraThinMaterial)
@@ -165,7 +165,7 @@ struct NewWorkoutView: View {
         Text("Create Workout")
           .font(.system(size: 28, weight: .bold))
           .foregroundColor(.white)
-          
+
         Text("Design your perfect routine")
           .font(.subheadline)
           .foregroundColor(.white.opacity(0.7))
@@ -194,7 +194,7 @@ struct NewWorkoutView: View {
       .buttonStyle(WorkoutScalingButtonStyle())
     }
   }
-  
+
   // Navigation functions
   private func nextStep() {
     if let nextStep = WorkoutCreationStep(rawValue: currentStep.rawValue + 1) {

@@ -8,6 +8,8 @@ you are an expert in coding with swift, swift ui. you always write maintainable 
 focus on latest august, september 2025 version of the documentation and features.
 your descriptions should be short and concise.
 don't remove any comments.
+don't use UI kit, always use swift, swift ui
+
 
 SwiftUI Project structure: 
 

@@ -1,9 +1,9 @@
 import SwiftUI
 
-// File: StepIndicatorView.swift
-// Path: /FitnessFreaks/Views/Components/StepIndicatorView.swift
+// File: WorkoutStepIndicatorView.swift
+// Path: /FitnessFreaks/Views/Components/WorkoutStepIndicatorView.swift
 
-struct StepIndicatorView: View {
+struct WorkoutStepIndicatorView: View {
     let currentStep: WorkoutCreationStep
     private let steps = WorkoutCreationStep.allCases
 
@@ -65,9 +65,9 @@ struct StepIndicatorView: View {
 
         VStack(spacing: 40) {
             // Show all three possible states
-            StepIndicatorView(currentStep: .selectMuscle)
-            StepIndicatorView(currentStep: .selectEquipment)
-            StepIndicatorView(currentStep: .configureWorkout)
+            WorkoutStepIndicatorView(currentStep: .selectMuscle)
+            WorkoutStepIndicatorView(currentStep: .selectEquipment)
+            WorkoutStepIndicatorView(currentStep: .configureWorkout)
 
             // Workout creation header demo
             VStack(spacing: 12) {
@@ -75,7 +75,7 @@ struct StepIndicatorView: View {
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.white)
 
-                StepIndicatorView(currentStep: .selectMuscle)
+                WorkoutStepIndicatorView(currentStep: .selectMuscle)
 
                 Text("Select Muscle Groups")
                     .font(.title2)

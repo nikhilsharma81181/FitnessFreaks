@@ -9,9 +9,22 @@ import SwiftUI
 
 @main
 struct FitnessFreaksApp: App {
+    @State private var onboardingCompleted = false
+    @State private var isAuthenticated = false
+
     var body: some Scene {
         WindowGroup {
-            LoginView()
+            if !isAuthenticated {
+                LoginView(isAuthenticated: $isAuthenticated)
+            } else if !onboardingCompleted {
+                OnboardingView()
+                    .onDisappear {
+                        // Mark onboarding as completed when dismissed
+                        onboardingCompleted = true
+                    }
+            } else {
+                ContentView()
+            }
         }
     }
 }
