@@ -1,21 +1,44 @@
-# FitnessFreaks
+# FitnessFreaks (iOS)
 
-![App Banner](https://github.com/yourusername/FitnessFreaks/raw/main/Images/app_banner.png)
+A SwiftUI fitness dashboard exploring a glass-morphic design language: frosted cards, animated charts, and a custom tab bar.
 
-A modern iOS fitness tracking app with elegant UI design, built entirely with SwiftUI. FitnessFreaks provides a comprehensive dashboard to monitor your fitness metrics, workout intensity, sleep patterns, and recovery status.
+> **Status: UI prototype.** This is the interface layer only. Charts render from sample data, and there is no HealthKit integration or persistence yet.
 
-## Features
+## What's here
 
-- **Beautiful Glass-Morphic UI Design**: Modern interface with frosted glass effects and dynamic animations
-- **Workout Activity Tracking**: View and track your daily workout activities
-- **Intensity Monitoring**: Visualize workout intensity across the week or month
-- **Health Metrics**: Monitor heart rate, sleep, recovery, and stress levels
-- **Activity Charts**: Interactive graphs showing your fitness progress
-- **Dark Mode Optimized**: Designed for optimal viewing in dark mode
+- **Workout progress card** with calendar integration
+- **Intensity graph** — animated line chart with interactive data points
+- **Quick insights** — heart rate, sleep, recovery, and stress cards
+- **Metrics graphs** — horizontally scrolling bar charts
+- **Adaptive header** that transforms on scroll
+- **Custom glass tab bar** with animated selection
 
-## Screenshots
+Everything is built with SwiftUI primitives. No charting library, no third-party dependencies.
 
-![App Screenshots](https://github.com/yourusername/FitnessFreaks/raw/main/Images/app_screenshots.png)
+## Design notes
+
+The glass effect is a reusable `ViewModifier` in `Styles/GlassCardStyle.swift` rather than a per-view treatment, so every card picks up the same translucency, highlight, and shadow. Colour definitions live in `Extensions/ColorExtension.swift` and view helpers in `Extensions/ViewExtension.swift`.
+
+The palette is dark-first: a mint and teal gradient background with per-metric accent colours, so each health card is identifiable at a glance.
+
+## Structure
+
+```
+FitnessFreaks/
+  FitnessFreaksApp.swift        App entry point
+  ContentView.swift             Root container, tab bar, scroll header
+  Components/
+    WorkoutProgressCard.swift
+    WorkoutIntensityGraph.swift
+    QuickInsightsView.swift
+    GraphMetricsView.swift
+    BackgroundGradient.swift
+  Styles/
+    GlassCardStyle.swift        Shared frosted-glass modifier
+  Extensions/
+    ColorExtension.swift
+    ViewExtension.swift
+```
 
 ## Requirements
 
@@ -23,95 +46,21 @@ A modern iOS fitness tracking app with elegant UI design, built entirely with Sw
 - Xcode 15.0+
 - Swift 5.9+
 
-## Installation
+## Running
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/FitnessFreaks.git
-   ```
-
-2. Open the project in Xcode:
-   ```bash
-   cd FitnessFreaks
-   open FitnessFreaks.xcodeproj
-   ```
-
-3. Build and run the project on your simulator or physical device.
-
-## Project Structure
-
-```
-FitnessFreaks/
-├── Views/
-│   ├── ContentView.swift             # Main container view
-│   ├── Components/
-│   │   ├── WorkoutProgressCard.swift # Daily workout activity card
-│   │   ├── WorkoutIntensityGraph.swift # Workout intensity visualization
-│   │   ├── QuickInsightsView.swift   # Health metrics insights cards
-│   │   ├── GraphMetricsView.swift    # Detailed metrics graphs
-│   │   └── BackgroundGradient.swift  # Styled app background
-├── Extensions/
-│   ├── ColorExtension.swift          # Custom color definitions
-│   └── ViewExtension.swift           # View modifier extensions
-├── Styles/
-│   └── GlassCardStyle.swift          # Glass-morphic card styling
-└── Resources/
-    └── Assets.xcassets               # App resources
+```bash
+git clone https://github.com/nikhilsharma81181/FitnessFreaks.git
+cd FitnessFreaks
+open FitnessFreaks.xcodeproj
 ```
 
-## Key Components
+Build and run on a simulator or device.
 
-### ContentView
-The main container view that organizes all components with a custom tab bar, animated header, and scrolling content.
+## Related
 
-### WorkoutProgressCard
-Displays the current day's workout activity status with calendar integration.
-
-### WorkoutIntensityGraph
-A beautifully animated line graph showing workout intensity over time with interactive data points.
-
-### QuickInsightsView
-Card-based display of health metrics including heart rate, sleep, recovery, and stress levels.
-
-### GraphMetricsView
-Detailed bar graphs for various health metrics that can be scrolled horizontally.
-
-### GlassCardStyle
-A custom ViewModifier that implements the frosted glass card style used throughout the app.
-
-## UI Design
-
-FitnessFreaks features a modern dark-themed UI with a "glass-morphic" design language:
-
-- **Background**: Gradient blend of vibrant mint/teal colors
-- **Cards**: Frosted glass effect with subtle transparency and highlights
-- **Typography**: Clean, legible text with carefully chosen font sizes and weights
-- **Animations**: Smooth spring animations for interactive elements
-- **Color Palette**: Dark background with vibrant accent colors for different metrics
-
-## Custom UI Elements
-
-- **Glass Cards**: Translucent cards with subtle highlights and shadows
-- **Interactive Graphs**: Touch-responsive data visualization
-- **Custom Tab Bar**: Glass-effect tab bar with animated selection indicators
-- **Adaptive Header**: Header that transforms as you scroll
-- **Dynamic Animations**: Spring animations on user interaction
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+- [fitness_freaks](https://github.com/nikhilsharma81181/fitness_freaks) — the Flutter version, further along
+- [fitness_freaks_ai](https://github.com/nikhilsharma81181/fitness_freaks_ai) — the LLM coaching backend
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-
-- [SwiftUI](https://developer.apple.com/xcode/swiftui/)
-- [SF Symbols](https://developer.apple.com/sf-symbols/) for iconography
+MIT.
